@@ -1,0 +1,54 @@
+﻿@{
+    ViewData["Title"] = "Inicio";
+}
+
+<!-- Sección Hero -->
+<div class="bg-primary text-white text-center py-5 rounded mb-5">
+    <h1 class="display-3 fw-bold">Sistema de Alquiler de Autos</h1>
+    <p class="lead">Gestiona clientes, vehículos y reservas de manera eficiente</p>
+</div>
+
+<!-- Módulos -->
+<div class="row g-4">
+    <!-- Clientes -->
+    <div class="col-md-4">
+        <div class="card shadow h-100 text-center">
+            <div class="card-body">
+                <div class="display-1 mb-3">👥</div>
+                <h3 class="card-title">Clientes</h3>
+                <p class="card-text text-muted">Administra la información de tus clientes</p>
+                <a asp-controller="Cliente" asp-action="Index" class="btn btn-primary btn-lg">
+                    Ir a Clientes
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Autos -->
+    <div class="col-md-4">
+        <div class="card shadow h-100 text-center">
+            <div class="card-body">
+                <div class="display-1 mb-3">🚙</div>
+                <h3 class="card-title">Autos</h3>
+                <p class="card-text text-muted">Gestiona el inventario de vehículos</p>
+                <a asp-controller="Auto" asp-action="Index" class="btn btn-primary btn-lg">
+                    Ir a Autos
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reservas -->
+    <div class="col-md-4">
+        <div class="card shadow h-100 text-center">
+            <div class="card-body">
+                <div class="display-1 mb-3">📋</div>
+                <h3 class="card-title">Reservas</h3>
+                <p class="card-text text-muted">Controla las reservas y alquileres</p>
+                <a asp-controller="Reserva" asp-action="Index" class="btn btn-primary btn-lg">
+                    Ir a Reservas
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,23 @@
+﻿@model AlquilerAuto.Models.Cliente
+
+@{
+    ViewData["Title"] = "Actualizar Cliente";
+}
+
+<h2>Actualizar Cliente</h2>
+
+<form asp-action="Edit" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <!-- ID oculto -->
+    <input type="hidden" asp-for="idCliente" />
+    <partial name="_PartialClienteForm" model="Model" />
+    <button type="submit" class="btn btn-warning">Actualizar</button>
+    <a asp-action="Index" class="btn btn-secondary">Volver</a>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+

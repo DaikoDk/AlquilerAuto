@@ -1,0 +1,32 @@
+﻿@model AlquilerAuto.Models.Cliente
+
+<div class="row g-3">
+    <!-- Nombre completo -->
+    <div class="col-md-6 mb-3">
+        <label asp-for="nombreApe" class="form-label">Nombre Completo</label>
+        <input asp-for="nombreApe" class="form-control" />
+        <span asp-validation-for="nombreApe" class="text-danger"></span>
+    </div>
+
+    <!-- DNI -->
+    <div class="col-md-6 mb-3">
+        <label asp-for="dni" class="form-label">DNI</label>
+        <input asp-for="dni" class="form-control" />
+        <span asp-validation-for="dni" class="text-danger"></span>
+    </div>
+
+    <!-- Teléfono -->
+    <div class="col-md-6 mb-3">
+        <label asp-for="telefono" class="form-label">Teléfono</label>
+        <input asp-for="telefono" class="form-control" />
+        <span asp-validation-for="telefono" class="text-danger"></span>
+    </div>
+
+    <!-- Email -->
+    <div class="col-md-6 mb-3">
+        <label asp-for="email" class="form-label">Email</label>
+        <input asp-for="email" class="form-control" />
+        <span asp-validation-for="email" class="text-danger"></span>
+    </div>
+</div>
+

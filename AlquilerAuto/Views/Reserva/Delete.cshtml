@@ -1,0 +1,66 @@
+﻿@model AlquilerAuto.ViewModels.ReservaDetalleVM
+
+@{
+    ViewData["Title"] = "Cancelar Reserva";
+}
+
+<h2 class="mb-3 text-danger">Cancelar Reserva</h2>
+
+<p class="text-muted">
+    ¿Está seguro que desea cancelar la siguiente reserva?
+</p>
+
+
+
+<div class="card">
+    <div class="card-body">
+
+        <dl class="row">
+            <dt class="col-sm-4">ID Reserva</dt>
+            <dd class="col-sm-8">@Model.IdReserva</dd>
+
+            <dt class="col-sm-4">Cliente</dt>
+            <dd class="col-sm-8">@Model.nombreCliente</dd>
+
+            <dt class="col-sm-4">DNI Cliente</dt>
+            <dd class="col-sm-8">@Model.dniCliente</dd>
+
+            <dt class="col-sm-4">Placa</dt>
+            <dd class="col-sm-8">@Model.placaAuto</dd>
+
+            <dt class="col-sm-4">Modelo</dt>
+            <dd class="col-sm-8">@Model.modeloAuto</dd>
+
+            <dt class="col-sm-4">Fecha Inicio</dt>
+            <dd class="col-sm-8">@Model.FechaInicio.ToString("dd/MM/yyyy")</dd>
+
+            <dt class="col-sm-4">Fecha Fin</dt>
+            <dd class="col-sm-8">@Model.FechaFin.ToString("dd/MM/yyyy")</dd>
+
+            <dt class="col-sm-4">Estado</dt>
+            <dd class="col-sm-8">
+                <span class="badge bg-warning text-dark">
+                    @Model.Estado
+                </span>
+            </dd>
+        </dl>
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="alert alert-danger">
+                @Html.ValidationSummary()
+            </div>
+        }
+
+        <form asp-action="DeleteConfirmad" method="post">
+            <input type="hidden" name="id" value="@Model.IdReserva" />
+
+            <button type="submit" class="btn btn-danger">
+                Confirmar Cancelación
+            </button>
+
+            <a asp-action="Index" class="btn btn-secondary"> Volver</a>
+        </form>
+
+    </div>
+</div>
+

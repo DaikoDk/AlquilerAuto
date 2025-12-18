@@ -1,0 +1,57 @@
+﻿@model IEnumerable<AlquilerAuto.Models.Reserva>
+
+@{
+    ViewData["Title"] = "Listado de Reservas";
+}
+
+<h2 class="mb-3">Listado de Reservas</h2>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">
+        Nueva Reserva
+    </a>
+</p>
+
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Cliente</th>
+            <th>Placa</th>
+            <th>Fecha Inicio</th>
+            <th>Fecha Fin</th>
+            <th>Total</th>
+            <th>Estado</th>
+            <th style="width:120px">Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.idReserva</td>
+                <td>@item.cliente</td>
+                <td>@item.placa</td>
+                <td>@item.fechaInicio.ToString("dd/MM/yyyy")</td>
+                <td>@item.fechaFin.ToString("dd/MM/yyyy")</td>
+                <td>S/ @item.total</td>
+                <td>
+                    <span class="badge bg-secondary">
+                        @item.estado
+                    </span>
+                </td>
+                <td>
+                    @if (item.estado == "Reservado")
+                    {
+                        <a asp-action="Delete"
+                           asp-route-id="@item.idReserva"
+                           class="btn btn-sm btn-danger">
+                            Cancelar
+                        </a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+

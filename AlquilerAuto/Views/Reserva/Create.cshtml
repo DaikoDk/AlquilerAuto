@@ -1,0 +1,61 @@
+﻿@model AlquilerAuto.ViewModels.ReservaVM
+
+@{
+    ViewData["Title"] = "Registrar Reserva";
+}
+
+<h2 class="mb-3">Registrar Reserva</h2>
+
+<form asp-action="Create" method="post">
+    <div class="row">
+
+        <!-- Cliente -->
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Cliente</label>
+            <select asp-for="idCliente"
+                    asp-items="ViewBag.Clientes"
+                    class="form-select">
+                <option value="">-- Seleccione cliente --</option>
+            </select>
+            <span asp-validation-for="idCliente" class="text-danger"></span>
+        </div>
+
+        <!-- Auto -->
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Auto</label>
+            <select asp-for="idAuto" asp-items="ViewBag.Autos" class="form-select">
+            <option value="">-- Seleccione auto --</option>
+            </select>
+            <span asp-validation-for="idAuto" class="text-danger"></span>
+        </div>
+
+        <!-- Fecha Inicio -->
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Fecha Inicio</label> <input asp-for="fechaInicio" type="date" class="form-control" />
+            <span asp-validation-for="fechaInicio" class="text-danger"></span>
+        </div>
+
+        <!-- Fecha Fin -->
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Fecha Fin</label>
+            <input asp-for="fechaFin" type="date" class="form-control" value="@Model.fechaInicio?.ToString("yyyy-MM-dd")" />
+            <span asp-validation-for="fechaFin" class="text-danger" value="@Model.fechaFin?.ToString("yyyy-MM-dd")"></span>
+        </div>
+
+    </div>
+
+    <div class="mt-3">
+        <button type="submit" class="btn btn-primary">Guardar</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+    </div>
+
+    <br />
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger">
+            @Html.ValidationSummary()
+        </div>
+    }
+
+</form>
