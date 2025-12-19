@@ -1,13 +1,24 @@
 using AlquilerAuto.DAO;
 using AlquilerAuto.Repositorio;
+using AlquilerAuto.Service;
+using AlquilerAuto.Service.ServiceImpl;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 
+//Modena PE-Peru
+var cultureInfo = new CultureInfo("es-PE");
+CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<ICliente, ClienteDAO>();
 builder.Services.AddScoped<IAuto, AutoDAO>();
 builder.Services.AddScoped<IReserva, ReservaDAO>();
+builder.Services.AddScoped<IClienteService, ClienteService>();
+
+builder.Services.AddScoped<IAutoService, AutoService>();
+builder.Services.AddScoped<IReservaService, ReservaService>();
 
 var app = builder.Build();
 

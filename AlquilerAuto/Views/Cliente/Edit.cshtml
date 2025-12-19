@@ -10,6 +10,7 @@
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <!-- ID oculto -->
     <input type="hidden" asp-for="idCliente" />
+
     <partial name="_PartialClienteForm" model="Model" />
     <button type="submit" class="btn btn-warning">Actualizar</button>
     <a asp-action="Index" class="btn btn-secondary">Volver</a>

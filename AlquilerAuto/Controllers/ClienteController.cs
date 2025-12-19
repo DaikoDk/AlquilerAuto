@@ -1,70 +1,86 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using AlquilerAuto.Models;
 using AlquilerAuto.Repositorio;
+using AlquilerAuto.Service;
 
 namespace AlquilerAuto.Controllers
 {
     public class ClienteController : Controller
     {
-        ICliente _cliente;
-        public ClienteController(ICliente cliente)
+        private readonly IClienteService _clienteService;
+        public ClienteController( IClienteService clienteService)
         {
-            _cliente = cliente;
+            _clienteService = clienteService;
         }
 
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            return View(await Task.Run(() => _cliente.Listado()));
+            var clientes = _clienteService.Listar();
+            return View(clientes);
         }
 
-       
-        public async Task<IActionResult> Create()
+        public IActionResult Create()
         {
-
-            return View(await Task.Run(() => new Cliente()));
+            return View(new Cliente());
         }
-        [HttpPost] public async Task<IActionResult> Create(Cliente reg) 
+
+        [HttpPost] public IActionResult Create(Cliente reg) 
         {
             if (!ModelState.IsValid)
                 return View(reg);
 
-            ModelState.AddModelError("", _cliente.agregar(reg));
+            string mensaje = _clienteService.AgregarCliente(reg);
 
-            return View(await Task.Run(() => reg));
+            if (mensaje.Contains("exitosamente")) 
+            {
+                TempData["mensaje"] = mensaje;
+                return RedirectToAction("Index");
+            }
+            ModelState.AddModelError("", mensaje);
+            return View(reg);
         }
-        public async Task<IActionResult> Edit(int id)
-        {
-            return View(await Task.Run(() => _cliente.buscar(id)));
-        }
-        [HttpPost] public async Task<IActionResult> Edit(Cliente reg) 
-        {
-            if (!ModelState.IsValid)
-                return View(reg);
-            ModelState.AddModelError("", _cliente.actualizar(reg));
 
-            return View(await Task.Run(() => reg));
-        }
-        public async Task<IActionResult> Delete(int id)
+        public IActionResult Edit(int id)
         {
-            var cliente = await Task.Run(() => _cliente.buscar(id));
+            var cliente = _clienteService.Buscar(id);
 
             if (cliente == null)
                 return NotFound();
 
             return View(cliente);
         }
-        [HttpPost] public IActionResult Delete(Cliente reg)
+        [HttpPost] public IActionResult Edit(Cliente reg) 
         {
-            string resultado = _cliente.eliminar(reg);
+            if (!ModelState.IsValid)
+                return View(reg);
 
-            if (string.IsNullOrEmpty(resultado))
+            string mensaje = _clienteService.ActualizarCliente(reg);
+
+            if (mensaje.Contains("exitosamente"))
             {
+                TempData["mensaje"] = mensaje;
                 return RedirectToAction("Index");
             }
 
-            ModelState.AddModelError("", resultado);
+            ModelState.AddModelError("", mensaje);
             return View(reg);
         }
+        public IActionResult Delete(int id)
+        {
+            var cliente = _clienteService.Buscar(id);
 
+            if (cliente == null)
+                return NotFound();
+
+            return View(cliente);
+        }
+        [HttpPost] public IActionResult DeleteConfirmed(int id)
+        {
+            string mensaje = _clienteService.EliminarCliente(id);
+
+            TempData["mensaje"] = mensaje;  // Le pasas el mensaje tal cual a la vista
+
+            return RedirectToAction("Index");
+        }
     }
 }

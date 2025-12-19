@@ -6,8 +6,7 @@ namespace AlquilerAuto.Repositorio
     {
         string Cancelar(int idReserva);
         string Finalizar(int idReserva);
-
+        List<Reserva> listarReservados();
         ReservaDetalleVM BuscarDetalle(int idReserva);
-
     }
 }

@@ -1,32 +1,34 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using AlquilerAuto.Models;
 using AlquilerAuto.Repositorio;
+using AlquilerAuto.Service;
 using System.Threading.Tasks;
 
 namespace AlquilerAuto.Controllers
 {
     public class AutoController : Controller
     {
-        IAuto _auto;
-        public AutoController(IAuto auto) 
+       private readonly IAutoService _autoService;
+        public AutoController(IAutoService autoService) 
         {
-            _auto = auto;
+            _autoService = autoService;
         }
 
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
-            return View(await Task.Run(() => _auto.Listado()));
+            var autos = _autoService.Listar();
+            return View(autos);
         }
-        public async Task<IActionResult> Create() 
+        public IActionResult Create() 
         {
-            return View(await Task.Run(() => new Auto()));
+            return View(new Auto());
         }
-        [HttpPost] public async Task<IActionResult> Create(Auto reg) 
+        [HttpPost] public IActionResult Create(Auto reg) 
         {
             if (!ModelState.IsValid)
                 return View(reg);
 
-            string resultado = _auto.agregar(reg);
+            string resultado = _autoService.Agregar(reg);
 
             if (resultado == "OK")
                 return RedirectToAction("Index"); // Redirige si todo salió bien
@@ -35,36 +37,56 @@ namespace AlquilerAuto.Controllers
             ModelState.AddModelError("", resultado);
             return View(reg);
         }
-        public async Task<IActionResult> Edit(int id) 
+        public IActionResult Edit(int id) 
         {
-            return View(await Task.Run(() => _auto.buscar(id)));
+            var auto = _autoService.Buscar(id);
+            if (auto == null || auto.idAuto == 0)
+                return NotFound();
+
+            return View(auto);
         }
-        [HttpPost] public async Task<IActionResult> Edit(Auto reg) 
+        [HttpPost] public IActionResult Edit(Auto reg) 
         {
             if (!ModelState.IsValid)
                 return View(reg);
-            ModelState.AddModelError("", _auto.actualizar(reg));
 
-            return View(await Task.Run(()=> reg));
+            string resultado = _autoService.Actualizar(reg);
+
+            if (resultado.Contains("exitosamente"))
+                return RedirectToAction("Index");
+
+            ModelState.AddModelError("", resultado);
+            return View(reg);
         }
-        public async Task<IActionResult> Delete(int id) 
+        public IActionResult Delete(int id) 
         {
-            var auto = await Task.Run(()=> _auto.buscar(id));
+            var auto =  _autoService.Buscar(id);
             if (auto == null)
                 return NotFound();
 
             return View(auto);
         }
-        [HttpPost] public IActionResult Delete(Auto reg) 
+        [HttpPost] public IActionResult DeleteInactive(int id) 
         {
-            string resultado = _auto.eliminar(reg);
+            string resultado = _autoService.Eliminar(id);
 
-            if(string.IsNullOrEmpty(resultado)) {
-                return RedirectToAction("Index");               
+            if (resultado == "Auto inactivo correctamente.")
+            {
+                TempData["mensaje"] = resultado;
+                return RedirectToAction("Index");
             }
+
             ModelState.AddModelError("", resultado);
 
-            return View(reg);
+            // Recarga el auto solo si existe, pero si el Service dice "no se encontró..." (~objeto null),
+            // de todas formas, muestra la vista solo si hay datos.
+            var auto = _autoService.Buscar(id);
+            if (auto == null)
+            {
+                // Aquí solo rediriges, pero el mensaje SIEMPRE viene del service (por ModelState)
+                return RedirectToAction("Index");
+            }
+            return View("Delete", auto);
         }
     }
 }

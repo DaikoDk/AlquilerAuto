@@ -11,17 +11,6 @@ namespace AlquilerAuto.DAO
         string cadena = (new ConfigurationBuilder()
             .AddJsonFile("appsettings.json")
             .Build().GetConnectionString("cn") ?? "");
-
-
-        public string actualizar(Reserva reg)
-        {
-            throw new NotImplementedException();
-        }
-        public string eliminar(Reserva reg)
-        {
-            throw new NotImplementedException();
-        }
-
         public string agregar(Reserva reg)
         {
             string mensaje = "";
@@ -35,6 +24,8 @@ namespace AlquilerAuto.DAO
                     cmd.Parameters.AddWithValue("@idAuto", reg.idAuto);
                     cmd.Parameters.AddWithValue("@fechaInicio", reg.fechaInicio);
                     cmd.Parameters.AddWithValue("@fechaFin", reg.fechaFin);
+                    cmd.Parameters.AddWithValue("@total", reg.total);
+                    cmd.Parameters.AddWithValue("@estado", reg.estado);
 
                     cn.Open();
                     mensaje = cmd.ExecuteScalar().ToString()??"";
@@ -98,10 +89,7 @@ namespace AlquilerAuto.DAO
                 mensaje = ex.Message;
             }
             return mensaje;
-        }
-
-       
-       
+        }            
 
         public string Finalizar(int idReserva)
         {
@@ -121,6 +109,32 @@ namespace AlquilerAuto.DAO
                 mensaje = ex.Message;
             }
             return mensaje;
+        }
+        public List<Reserva> listarReservados()
+        {
+            List<Reserva> lista = new List<Reserva>();
+
+            using (SqlConnection cn = new SqlConnection(cadena))
+            using (SqlCommand cmd = new SqlCommand("usp_reserva_listar_reservados", cn))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cn.Open();
+
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    while (dr.Read())
+                    {
+                        lista.Add(new Reserva
+                        {
+                            idReserva = Convert.ToInt32(dr["idReserva"]),
+                            cliente = Convert.ToString(dr["cliente"]),
+                            placa = Convert.ToString(dr["placa"]),
+                            estado = Convert.ToString(dr["estado"])
+                        });
+                    }
+                }
+            }
+            return lista;
         }
 
         public IEnumerable<Reserva> Listado()
@@ -152,7 +166,6 @@ namespace AlquilerAuto.DAO
             }
             return lista;
         }
-
         public ReservaDetalleVM BuscarDetalle(int idReserva)
         {
             ReservaDetalleVM reg = null;
@@ -190,8 +203,34 @@ namespace AlquilerAuto.DAO
                 // Manejo de error
                 reg = new ReservaDetalleVM(); // Devuelve vacío si falla
             }
-
             return reg ?? new ReservaDetalleVM();
+        }     
+        public string eliminar(Reserva reg)
+        {
+            string mensaje = "";
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(cadena))
+                using (SqlCommand cmd = new SqlCommand("usp_reserva_eliminar", cn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@idReserva", reg.idReserva);
+
+                    cn.Open();
+                    mensaje = cmd.ExecuteScalar()?.ToString() ?? "";
+                }
+            }
+            catch (Exception ex)
+            {
+                mensaje = ex.Message;
+            }
+            return mensaje;
         }
+
+        public string actualizar(Reserva reg)
+        {
+            throw new NotImplementedException();
+        }
+       
     }
 }

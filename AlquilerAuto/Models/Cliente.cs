@@ -24,7 +24,7 @@ namespace AlquilerAuto.Models
         public string? telefono { get; set; }
 
         [Display(Name = "Correo")]
-        [ Required(ErrorMessage = "El correo electrónico es obligatorio")]
+        [Required(ErrorMessage = "El correo electrónico es obligatorio")]
         [EmailAddress(ErrorMessage = "Correo electrónico inválido")]
         public string? email { get; set; }
     }

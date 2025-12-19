@@ -66,7 +66,33 @@ namespace AlquilerAuto.DAO
 
         public Auto buscar(int codigo)
         {
-            return Listado().FirstOrDefault(x=> x.idAuto == codigo) ?? new Auto();
+            using (SqlConnection cn = new SqlConnection(cadena))
+            {
+                using (SqlCommand cmd = new SqlCommand("usp_auto_buscar", cn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@idAuto", codigo);
+
+                    cn.Open();
+                    using (var dr = cmd.ExecuteReader())
+                    {
+                        if (dr.Read())
+                        {
+                            return new Auto
+                            {
+                                idAuto = Convert.ToInt32(dr["idAuto"]),
+                                placa = dr["placa"].ToString(),
+                                marca = dr["marca"].ToString(),
+                                modelo = dr["modelo"].ToString(),
+                                anio = Convert.ToInt32(dr["anio"]),
+                                precioPorDia = Convert.ToDecimal(dr["precioPorDia"]),
+                                estado = dr["estado"].ToString()
+                            };
+                        }
+                    }
+                }
+            }
+            return null;
         }
 
         public string eliminar(Auto reg)
@@ -75,14 +101,17 @@ namespace AlquilerAuto.DAO
             try
             {
                 using (SqlConnection cn = new SqlConnection(cadena))
+                using (SqlCommand cmd = new SqlCommand("usp_auto_eliminar", cn))
                 {
-                    using (SqlCommand cmd = new SqlCommand("usp_auto_eliminar", cn))
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@idAuto", reg.idAuto);
+                    cn.Open();
+                    using (var dr = cmd.ExecuteReader())
                     {
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.AddWithValue("@idAuto", reg.idAuto);
-
-                        cn.Open();
-                        mensaje = cmd.ExecuteScalar().ToString() ?? "";
+                        if (dr.Read())
+                            mensaje = dr[0].ToString();
+                        else
+                            mensaje = "";
                     }
                 }
             }

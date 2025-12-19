@@ -21,7 +21,8 @@ namespace AlquilerAuto.Models
         [Range(1000,9999,ErrorMessage ="El año debe tener 4 dígitos")]
         public int anio { get; set; }
 
-        [Display(Name = "Precio por Día"), Required(ErrorMessage = "El Precio es obligatorio")]
+        [Display(Name = "Precio por Día")]
+        [Required(ErrorMessage = "El Precio es obligatorio")]
         public decimal precioPorDia { get; set; }
 
         [Display(Name = "Estado"), Required(ErrorMessage = "El estado es obligatorio")]

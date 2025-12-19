@@ -43,11 +43,9 @@
                 <td>
                     @if (item.estado == "Reservado")
                     {
-                        <a asp-action="Delete"
+                        <a asp-action="Cancelar"
                            asp-route-id="@item.idReserva"
-                           class="btn btn-sm btn-danger">
-                            Cancelar
-                        </a>
+                           class="btn btn-sm btn-danger">Cancelar</a>
                     }
                 </td>
             </tr>

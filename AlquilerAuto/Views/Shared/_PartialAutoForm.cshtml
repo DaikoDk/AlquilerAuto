@@ -1,55 +1,55 @@
 ﻿@model AlquilerAuto.Models.Auto
 
+@* Validación de resumen a nivel de Form *@
+@Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
 <div class="row">
     <!-- Placa -->
     <div class="col-md-6 mb-3">
-        <label asp-for="placa" class="form-label">Placa</label>
+        <label asp-for="placa" class="form-label"></label>
         <input asp-for="placa" class="form-control" />
         <span asp-validation-for="placa" class="text-danger"></span>
     </div>
 
     <!-- Marca -->
-    <div class="form-group">
-        <label asp-for="marca"></label>
+    <div class="col-md-6 mb-3">
+        <label asp-for="marca" class="form-label"></label>
         <input asp-for="marca" class="form-control" />
         <span asp-validation-for="marca" class="text-danger"></span>
     </div>
 
-
     <!-- Modelo -->
     <div class="col-md-6 mb-3">
-        <label asp-for="modelo" class="form-label">Modelo</label>
+        <label asp-for="modelo" class="form-label"></label>
         <input asp-for="modelo" class="form-control" />
         <span asp-validation-for="modelo" class="text-danger"></span>
     </div>
 
     <!-- Año -->
-    <div class="col-md-4 mb-3">
-        <label asp-for="anio" class="form-label">Año</label>
+    <div class="col-md-3 mb-3">
+        <label asp-for="anio" class="form-label"></label>
         <input asp-for="anio" class="form-control" />
         <span asp-validation-for="anio" class="text-danger"></span>
     </div>
 
     <!-- Precio Por Día -->
-    <div class="col-md-4 mb-3">
-        <label asp-for="precioPorDia" class="form-label">Precio Por Día</label>
-        <input asp-for="precioPorDia" class="form-control" />
+    <div class="col-md-3 mb-3">
+        <label asp-for="precioPorDia" class="form-label"></label>
+        <input asp-for="precioPorDia" class="form-control" type="number"/>
         <span asp-validation-for="precioPorDia" class="text-danger"></span>
     </div>
 
     <!-- Estado -->
     <div class="col-md-4 mb-3">
-        <label asp-for="estado" class="form-label">Estado</label>
+        <label asp-for="estado" class="form-label"></label>
         <select asp-for="estado" class="form-select">
             <option value="Disponible">Disponible</option>
             <option value="Alquilado">Alquilado</option>
             <option value="Mantenimiento">En mantenimiento</option>
             <option value="Inactivo">Inactivo</option>
-
         </select>
         <span asp-validation-for="estado" class="text-danger"></span>
     </div>
 </div>
-
 
 

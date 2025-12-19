@@ -62,7 +62,28 @@ namespace AlquilerAuto.DAO
 
         public Cliente buscar(int codigo)
         {
-            return Listado().FirstOrDefault(x => x.idCliente == codigo) ?? new Cliente();
+            using (SqlConnection cn = new SqlConnection(cadena))
+            using (SqlCommand cmd = new SqlCommand("usp_cliente_buscar", cn))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@idCliente", codigo);
+                cn.Open();
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    if (dr.Read())
+                    {
+                        return new Cliente()
+                        {
+                            idCliente = Convert.ToInt32(dr["idCliente"]),
+                            nombreApe = Convert.ToString(dr["nombreApe"]),
+                            dni = Convert.ToString(dr["dni"]),
+                            telefono = Convert.ToString(dr["telefono"]),
+                            email = Convert.ToString(dr["email"])
+                        };
+                    }
+                }
+            }
+            return new Cliente(); // o return null; según tu preferencia
         }
 
         public string eliminar(Cliente reg)
@@ -84,6 +105,30 @@ namespace AlquilerAuto.DAO
             }
             catch (Exception ex) { mensaje = ex.Message; }
             return mensaje;
+        }
+
+        public bool existeDni(string dni)
+        {
+            using (SqlConnection cn = new SqlConnection(cadena))
+            using (SqlCommand cmd = new SqlCommand("SELECT COUNT(1) FROM tb_cliente WHERE dni=@dni", cn))
+            {
+                cmd.Parameters.AddWithValue("@dni", dni);
+                cn.Open();
+                int count = (int)cmd.ExecuteScalar();
+                return count > 0;
+            }
+        }
+
+        public bool existeEmail(string email)
+        {
+            using (SqlConnection cn = new SqlConnection(cadena))
+    using (SqlCommand cmd = new SqlCommand("SELECT COUNT(1) FROM tb_cliente WHERE email=@email", cn))
+    {
+        cmd.Parameters.AddWithValue("@email", email);
+        cn.Open();
+        int count = (int)cmd.ExecuteScalar();
+        return count > 0;
+    }
         }
 
         public IEnumerable<Cliente> Listado()
