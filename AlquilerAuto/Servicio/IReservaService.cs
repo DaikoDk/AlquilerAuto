@@ -1,7 +1,7 @@
 ﻿using AlquilerAuto.Models;
 using AlquilerAuto.ViewModels;
 
-namespace AlquilerAuto.Service
+namespace AlquilerAuto.Servicio
 {
     public interface IReservaService
     {  

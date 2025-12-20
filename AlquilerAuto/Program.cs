@@ -1,7 +1,8 @@
 using AlquilerAuto.DAO;
 using AlquilerAuto.Repositorio;
-using AlquilerAuto.Service;
-using AlquilerAuto.Service.ServiceImpl;
+using AlquilerAuto.Servicio;
+using AlquilerAuto.Servicio.Service;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,10 +16,19 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<ICliente, ClienteDAO>();
 builder.Services.AddScoped<IAuto, AutoDAO>();
 builder.Services.AddScoped<IReserva, ReservaDAO>();
-builder.Services.AddScoped<IClienteService, ClienteService>();
+builder.Services.AddScoped<IUsuario, UsuarioDAO>();
 
+builder.Services.AddScoped<IClienteService, ClienteService>();
 builder.Services.AddScoped<IAutoService, AutoService>();
 builder.Services.AddScoped<IReservaService, ReservaService>();
+builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(option => {
+        // Aquí indicamos a dónde ir si intentan entrar sin permiso
+        option.LoginPath = "/Usuario/Login";
+        option.ExpireTimeSpan = TimeSpan.FromMinutes(20); // Tiempo de vida de la sesión
+    });
 
 var app = builder.Build();
 
@@ -34,11 +44,11 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Usuario}/{action=Login}/{id?}");
 
 app.Run();

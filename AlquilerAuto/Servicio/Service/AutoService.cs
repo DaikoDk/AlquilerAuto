@@ -2,7 +2,7 @@
 using AlquilerAuto.Models;
 using AlquilerAuto.Repositorio;
 
-namespace AlquilerAuto.Service.ServiceImpl
+namespace AlquilerAuto.Servicio.Service
 {
     public class AutoService : IAutoService
     {

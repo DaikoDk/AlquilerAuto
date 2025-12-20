@@ -1,6 +1,6 @@
 ﻿using AlquilerAuto.Models;
 
-namespace AlquilerAuto.Service
+namespace AlquilerAuto.Servicio
 {
     public interface IClienteService
     {

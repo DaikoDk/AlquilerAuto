@@ -1,12 +1,14 @@
 ﻿using AlquilerAuto.Models;
 using AlquilerAuto.Repositorio;
-using AlquilerAuto.Service;
+using AlquilerAuto.Servicio;
 using AlquilerAuto.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace AlquilerAuto.Controllers
 {
+    [Authorize]
     public class ReservaController : Controller
     {
         private readonly IReservaService _reservaService;

@@ -1,11 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using AlquilerAuto.Models;
+﻿using AlquilerAuto.Models;
 using AlquilerAuto.Repositorio;
-using AlquilerAuto.Service;
+using AlquilerAuto.Servicio;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
 namespace AlquilerAuto.Controllers
 {
+    [Authorize]
     public class AutoController : Controller
     {
        private readonly IAutoService _autoService;

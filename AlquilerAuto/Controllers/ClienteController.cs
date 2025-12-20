@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using AlquilerAuto.Models;
+﻿using AlquilerAuto.Models;
 using AlquilerAuto.Repositorio;
-using AlquilerAuto.Service;
+using AlquilerAuto.Servicio;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace AlquilerAuto.Controllers
 {
+    [Authorize]
     public class ClienteController : Controller
     {
         private readonly IClienteService _clienteService;

@@ -1,0 +1,48 @@
+﻿@{
+    Layout = null; // Esto quita el menú de navegación para esta pantalla
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Login - Alquiler Auto</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+</head>
+<body class="bg-light d-flex justify-content-center align-items-center" style="height: 100vh;">
+
+    <div class="card shadow" style="width: 400px;">
+        <div class="card-header bg-primary text-white text-center">
+            <h3>Iniciar Sesión</h3>
+        </div>
+        <div class="card-body">
+
+            <form action="@Url.Action("Login", "Usuario")" method="post">
+
+                @if (ViewBag.Error != null)
+                {
+                    <div class="alert alert-danger text-center">
+                        @ViewBag.Error
+                    </div>
+                }
+
+                <div class="mb-3">
+                    <label class="form-label">Correo Electrónico</label>
+                    <input type="email" name="correo" class="form-control" placeholder="ejemplo@correo.com" required />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Contraseña</label>
+                    <input type="password" name="clave" class="form-control" placeholder="******" required />
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary">Ingresar</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>

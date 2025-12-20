@@ -3,7 +3,7 @@ using AlquilerAuto.Models;
 using AlquilerAuto.Repositorio;
 using AlquilerAuto.ViewModels;
 
-namespace AlquilerAuto.Service.ServiceImpl
+namespace AlquilerAuto.Servicio.Service
 {
     public class ReservaService : IReservaService
     {
