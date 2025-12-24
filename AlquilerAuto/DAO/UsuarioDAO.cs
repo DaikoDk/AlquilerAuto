@@ -16,7 +16,7 @@ namespace AlquilerAuto.DAO
             Usuario usuario = null;
             using (SqlConnection cn = new SqlConnection(cadena))
             {
-                string query = "SELECT Nombre, Correo, Rol FROM Usuario WHERE Correo = @c AND Clave = @p";
+                string query = "SELECT idUsuario, nombre, correo, rol, activo FROM tb_usuario WHERE correo = @c AND clave = @p AND activo = 1";
                 SqlCommand cmd = new SqlCommand(query, cn);
                 cmd.Parameters.AddWithValue("@c", correo);
                 cmd.Parameters.AddWithValue("@p", clave);
@@ -27,10 +27,11 @@ namespace AlquilerAuto.DAO
                     if (dr.Read()) 
                     {
                         usuario = new Usuario();
-                        usuario.Nombre = dr["Nombre"].ToString();
-                        usuario.Correo = dr["Correo"].ToString();
-                        usuario.Rol = dr["Rol"].ToString();
-                        
+                        usuario.IdUsuario = Convert.ToInt32(dr["idUsuario"]);
+                        usuario.Nombre = dr["nombre"].ToString();
+                        usuario.Correo = dr["correo"].ToString();
+                        usuario.Rol = dr["rol"].ToString();
+                        usuario.Activo = Convert.ToBoolean(dr["activo"]);
                     }
                 }
             }

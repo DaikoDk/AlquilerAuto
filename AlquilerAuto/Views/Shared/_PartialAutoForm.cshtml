@@ -13,39 +13,73 @@
 
     <!-- Marca -->
     <div class="col-md-6 mb-3">
-        <label asp-for="marca" class="form-label"></label>
-        <input asp-for="marca" class="form-control" />
-        <span asp-validation-for="marca" class="text-danger"></span>
+        <label asp-for="idMarca" class="form-label"></label>
+        <select asp-for="idMarca" class="form-select" id="selectMarca">
+            <option value="">Seleccione una marca</option>
+            @if (ViewBag.Marcas != null)
+            {
+                foreach (var marca in ViewBag.Marcas)
+                {
+                    <option value="@marca.Value">@marca.Text</option>
+                }
+            }
+        </select>
+        <span asp-validation-for="idMarca" class="text-danger"></span>
     </div>
 
     <!-- Modelo -->
     <div class="col-md-6 mb-3">
-        <label asp-for="modelo" class="form-label"></label>
-        <input asp-for="modelo" class="form-control" />
-        <span asp-validation-for="modelo" class="text-danger"></span>
+        <label asp-for="idModelo" class="form-label"></label>
+        <select asp-for="idModelo" class="form-select" id="selectModelo">
+            <option value="">Seleccione primero una marca</option>
+        </select>
+        <span asp-validation-for="idModelo" class="text-danger"></span>
     </div>
 
     <!-- Año -->
     <div class="col-md-3 mb-3">
         <label asp-for="anio" class="form-label"></label>
-        <input asp-for="anio" class="form-control" />
+        <input asp-for="anio" class="form-control" type="number" />
         <span asp-validation-for="anio" class="text-danger"></span>
     </div>
 
-    <!-- Precio Por Día -->
+    <!-- Color -->
     <div class="col-md-3 mb-3">
+        <label asp-for="color" class="form-label"></label>
+        <input asp-for="color" class="form-control" />
+        <span asp-validation-for="color" class="text-danger"></span>
+    </div>
+
+    <!-- Kilometraje Actual -->
+    <div class="col-md-4 mb-3">
+        <label asp-for="kilometrajeActual" class="form-label"></label>
+        <input asp-for="kilometrajeActual" class="form-control" type="number" />
+        <span asp-validation-for="kilometrajeActual" class="text-danger"></span>
+    </div>
+
+    <!-- Precio Por Día -->
+    <div class="col-md-4 mb-3">
         <label asp-for="precioPorDia" class="form-label"></label>
-        <input asp-for="precioPorDia" class="form-control" type="number"/>
+        <input asp-for="precioPorDia" class="form-control" type="number" step="0.01" />
         <span asp-validation-for="precioPorDia" class="text-danger"></span>
+    </div>
+
+    <!-- Precio Por Hora -->
+    <div class="col-md-4 mb-3">
+        <label asp-for="precioPorHora" class="form-label"></label>
+        <input asp-for="precioPorHora" class="form-control" type="number" step="0.01" />
+        <span asp-validation-for="precioPorHora" class="text-danger"></span>
     </div>
 
     <!-- Estado -->
     <div class="col-md-4 mb-3">
         <label asp-for="estado" class="form-label"></label>
         <select asp-for="estado" class="form-select">
+            <option value="">Seleccione un estado</option>
             <option value="Disponible">Disponible</option>
             <option value="Alquilado">Alquilado</option>
-            <option value="Mantenimiento">En mantenimiento</option>
+            <option value="En mantenimiento">En mantenimiento</option>
+            <option value="En reparacion">En reparación</option>
             <option value="Inactivo">Inactivo</option>
         </select>
         <span asp-validation-for="estado" class="text-danger"></span>

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AlquilerAuto.Models
 {
-    [Table("Usuario")]
+    [Table("tb_usuario")]
     public class Usuario
     {
         [Key]
@@ -20,5 +20,9 @@ namespace AlquilerAuto.Models
 
         [Required(ErrorMessage = "El rol es obligatorio")]
         public string? Rol { get; set; }
+
+        public DateTime? FechaRegistro { get; set; }
+
+        public bool Activo { get; set; } = true;
     }
 }

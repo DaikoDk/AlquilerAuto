@@ -1,0 +1,137 @@
+@model IEnumerable<AlquilerAuto.Models.HistorialKilometraje>
+
+@{
+    ViewData["Title"] = "Historial de Kilometraje";
+    var auto = ViewBag.Auto as AlquilerAuto.Models.Auto;
+}
+
+<div class="mb-4">
+    <h2>?? Historial de Kilometraje</h2>
+    <p class="text-muted">Registro de cambios en el kilometraje del vehículo</p>
+</div>
+
+@if (auto != null)
+{
+    <div class="card shadow mb-4">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0"><i class="bi bi-car-front-fill"></i> Información del Vehículo</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <strong>Placa:</strong> <span class="badge bg-dark fs-6">@auto.placa</span>
+                </div>
+                <div class="col-md-3">
+                    <strong>Modelo:</strong> @auto.nombreMarca @auto.nombreModelo
+                </div>
+                <div class="col-md-3">
+                    <strong>Año:</strong> @auto.anio
+                </div>
+                <div class="col-md-3">
+                    <strong>Km Actual:</strong> <span class="badge bg-primary fs-6">@auto.kilometrajeActual.ToString("N0") km</span>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<div class="card shadow">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover table-striped align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Tipo</th>
+                        <th class="text-end">Km Anterior</th>
+                        <th class="text-end">Km Nuevo</th>
+                        <th class="text-end">Diferencia</th>
+                        <th>Reserva</th>
+                        <th>Usuario</th>
+                        <th>Observaciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="8" class="text-center text-muted py-4">
+                                <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+                                <p class="mt-2">No hay historial registrado para este vehículo</p>
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    @if (item.fechaRegistro.HasValue)
+                                    {
+                                        @item.fechaRegistro.Value.ToString("dd/MM/yyyy HH:mm")
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.tipoRegistro == "Reserva")
+                                    {
+                                        <span class="badge bg-success">Reserva</span>
+                                    }
+                                    else if (item.tipoRegistro == "Mantenimiento")
+                                    {
+                                        <span class="badge bg-warning text-dark">Mantenimiento</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">@item.tipoRegistro</span>
+                                    }
+                                </td>
+                                <td class="text-end">@item.kilometrajeAnterior.ToString("N0") km</td>
+                                <td class="text-end fw-bold">@item.kilometrajeNuevo.ToString("N0") km</td>
+                                <td class="text-end">
+                                    <span class="badge bg-info">+@item.diferencia.ToString("N0") km</span>
+                                </td>
+                                <td>
+                                    @if (item.idReserva.HasValue)
+                                    {
+                                        <a asp-controller="Reserva" asp-action="Index" class="text-decoration-none">
+                                            #@item.idReserva
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td>
+                                    <small>@item.usuarioRegistro</small>
+                                </td>
+                                <td>
+                                    <small class="text-muted">@item.observaciones</small>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+                @if (Model.Any())
+                {
+                    <tfoot>
+                        <tr class="table-secondary fw-bold">
+                            <td colspan="4" class="text-end">Total Kilómetros Recorridos:</td>
+                            <td class="text-end">
+                                <span class="badge bg-primary fs-6">@Model.Sum(h => h.diferencia).ToString("N0") km</span>
+                            </td>
+                            <td colspan="3"></td>
+                        </tr>
+                    </tfoot>
+                }
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="mt-3">
+    <a asp-action="Index" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Volver a Autos
+    </a>
+</div>

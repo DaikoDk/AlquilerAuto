@@ -1,0 +1,164 @@
+@model AlquilerAuto.Models.Reparacion
+
+@{
+    ViewData["Title"] = "Editar Reparación";
+}
+
+<div class="mb-4">
+    <h2>?? Editar Reparación</h2>
+    <p class="text-muted">Actualice el costo o estado de la reparación</p>
+</div>
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong><i class="bi bi-exclamation-triangle-fill"></i> Errores de validación:</strong>
+        <ul class="mb-0 mt-2">
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <li>@error.ErrorMessage</li>
+            }
+        </ul>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- Información de la Reparación -->
+<div class="card shadow mb-4">
+    <div class="card-header bg-info text-white">
+        <h5 class="mb-0"><i class="bi bi-info-circle"></i> Información de la Reparación #@Model.idReparacion</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <strong>Reserva:</strong> #@Model.idReserva
+            </div>
+            <div class="col-md-4">
+                <strong>Fecha Reporte:</strong> @Model.fechaReporte?.ToString("dd/MM/yyyy HH:mm")
+            </div>
+            <div class="col-md-4">
+                <strong>Responsable:</strong> <span class="badge bg-primary">@Model.responsable</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Formulario de Edición -->
+<div class="card shadow">
+    <div class="card-header bg-warning text-dark">
+        <h5 class="mb-0"><i class="bi bi-pencil-square"></i> Editar Datos</h5>
+    </div>
+    <div class="card-body">
+        <form asp-action="Edit" method="post" asp-antiforgery="true">
+            @Html.AntiForgeryToken()
+            
+            <!-- Campos ocultos -->
+            <input type="hidden" asp-for="idReparacion" />
+            <input type="hidden" asp-for="idReserva" />
+            <input type="hidden" asp-for="idAuto" />
+            <input type="hidden" asp-for="idCatalogoReparacion" />
+            <input type="hidden" asp-for="responsable" />
+            <input type="hidden" asp-for="fechaReporte" />
+            <input type="hidden" asp-for="usuarioReporte" />
+
+            <div class="row">
+                <!-- Descripción (solo lectura) -->
+                <div class="col-md-12 mb-3">
+                    <label class="form-label fw-bold">
+                        <i class="bi bi-file-text"></i> Descripción del Daño
+                    </label>
+                    <textarea class="form-control" rows="3" readonly>@Model.descripcion</textarea>
+                </div>
+
+                <!-- Costo (EDITABLE) -->
+                <div class="col-md-6 mb-3">
+                    <label asp-for="costo" class="form-label fw-bold">
+                        <i class="bi bi-cash-coin"></i> Costo de Reparación (S/) *
+                    </label>
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-text">S/</span>
+                        <input asp-for="costo" 
+                               type="number" 
+                               step="0.01" 
+                               min="0"
+                               class="form-control"
+                               required />
+                    </div>
+                    <span asp-validation-for="costo" class="text-danger"></span>
+                    <small class="form-text text-muted">Actualice el costo si cambió después de la cotización inicial</small>
+                </div>
+
+                <!-- Estado (EDITABLE) -->
+                <div class="col-md-6 mb-3">
+                    <label asp-for="estado" class="form-label fw-bold">
+                        <i class="bi bi-wrench"></i> Estado de la Reparación *
+                    </label>
+                    <select asp-for="estado" class="form-select form-select-lg" required>
+                        <option value="Pendiente">? Pendiente</option>
+                        <option value="En proceso">?? En Proceso</option>
+                        <option value="Completada">? Completada</option>
+                        <option value="Cancelada">? Cancelada</option>
+                    </select>
+                    <span asp-validation-for="estado" class="text-danger"></span>
+                </div>
+
+                <!-- Observaciones (NUEVO campo opcional) -->
+                <div class="col-md-12 mb-3">
+                    <label class="form-label">
+                        <i class="bi bi-chat-left-text"></i> Observaciones Adicionales
+                    </label>
+                    <textarea name="observaciones" class="form-control" rows="2" 
+                              placeholder="Ej: Se incrementó el costo por piezas adicionales necesarias"></textarea>
+                    <small class="form-text text-muted">Opcional: Explique por qué cambió el costo o estado</small>
+                </div>
+            </div>
+
+            <!-- Alerta -->
+            <div class="alert alert-warning" role="alert">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <strong>Importante:</strong>
+                <ul class="mb-0 mt-2">
+                    <li>Si cambia el costo y el <strong>responsable es "Cliente"</strong>, se actualizará el total de la reserva.</li>
+                    <li>Solo edite el costo si el precio real difiere del estimado inicialmente.</li>
+                    <li>Cambie el estado a <strong>"Completada"</strong> cuando finalice la reparación.</li>
+                </ul>
+            </div>
+
+            <!-- Botones -->
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-warning btn-lg">
+                    <i class="bi bi-check-circle"></i> Guardar Cambios
+                </button>
+                <a asp-action="Index" asp-route-idReserva="@Model.idReserva" class="btn btn-secondary btn-lg">
+                    <i class="bi bi-x-circle"></i> Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    
+    <script>
+        $(document).ready(function() {
+            // Confirmación antes de guardar
+            $('form').on('submit', function(e) {
+                var costo = $('input[name="costo"]').val();
+                var estado = $('select[name="estado"]').val();
+                
+                if (!confirm('¿Confirmar cambios?\n\nCosto: S/ ' + costo + '\nEstado: ' + estado)) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+        });
+    </script>
+
+    <style>
+        .form-control:focus, .form-select:focus {
+            border-color: #ffc107;
+            box-shadow: 0 0 0 0.25rem rgba(255, 193, 7, 0.25);
+        }
+    </style>
+}

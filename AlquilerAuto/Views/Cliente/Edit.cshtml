@@ -4,17 +4,35 @@
     ViewData["Title"] = "Actualizar Cliente";
 }
 
-<h2>Actualizar Cliente</h2>
+<div class="mb-4">
+    <h2><i class="bi bi-pencil-square"></i> Actualizar Cliente</h2>
+    <p class="text-muted">Modifique los datos del cliente</p>
+</div>
 
-<form asp-action="Edit" method="post">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <!-- ID oculto -->
-    <input type="hidden" asp-for="idCliente" />
+<div class="card shadow">
+    <div class="card-body">
+        <form asp-action="Edit" method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+            <input type="hidden" asp-for="idCliente" />
+            <input type="hidden" asp-for="numeroReservas" />
+            <input type="hidden" asp-for="numeroIncidentes" />
+            <input type="hidden" asp-for="bloqueado" />
+            <input type="hidden" asp-for="fechaRegistro" />
+            <input type="hidden" asp-for="activo" />
 
-    <partial name="_PartialClienteForm" model="Model" />
-    <button type="submit" class="btn btn-warning">Actualizar</button>
-    <a asp-action="Index" class="btn btn-secondary">Volver</a>
-</form>
+            <partial name="_PartialClienteForm" model="Model" />
+            
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-warning btn-lg">
+                    <i class="bi bi-check-circle"></i> Actualizar Cliente
+                </button>
+                <a asp-action="Index" class="btn btn-secondary btn-lg">
+                    <i class="bi bi-x-circle"></i> Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
 
 @section Scripts {
     @{

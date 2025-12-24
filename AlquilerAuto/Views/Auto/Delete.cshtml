@@ -4,40 +4,109 @@
     ViewData["Title"] = "Eliminar Auto";
 }
 
-<h2>Eliminar Auto</h2>
-@if (!ViewData.ModelState.IsValid)
-{
-    <div class="alert alert-danger">
-        @Html.ValidationSummary()
-    </div>
-}
-<div class="alert alert-warning">
-    ¿Estás seguro que deseas eliminar este auto? Esta operación no se puede deshacer.
+<div class="mb-4">
+    <h2 class="text-danger"><i class="bi bi-exclamation-triangle-fill"></i> Eliminar Auto</h2>
+    <p class="text-muted">¿Está seguro que desea eliminar este vehículo?</p>
 </div>
 
-<hr />
-<dl class="row">
-    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.idAuto)</dt>
-    <dd class="col-sm-10">@Html.DisplayFor(model => model.idAuto)</dd>
+@if (TempData["error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        <i class="bi bi-exclamation-triangle-fill"></i> @TempData["error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
 
-    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.placa)</dt>
-    <dd class="col-sm-10">@Html.DisplayFor(model => model.placa)</dd>
+<div class="card shadow">
+    <div class="card-header bg-danger text-white">
+        <h4 class="mb-0"><i class="bi bi-car-front-fill"></i> Información del Vehículo</h4>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <dl class="row">
+                    <dt class="col-sm-5">ID Auto:</dt>
+                    <dd class="col-sm-7 fw-bold">@Model.idAuto</dd>
 
-    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.modelo)</dt>
-    <dd class="col-sm-10">@Html.DisplayFor(model => model.modelo)</dd>
+                    <dt class="col-sm-5">Placa:</dt>
+                    <dd class="col-sm-7">
+                        <span class="badge bg-dark fs-6">@Model.placa</span>
+                    </dd>
 
-    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.anio)</dt>
-    <dd class="col-sm-10">@Html.DisplayFor(model => model.anio)</dd>
+                    <dt class="col-sm-5">Marca:</dt>
+                    <dd class="col-sm-7 fw-bold">@Model.nombreMarca</dd>
 
-    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.precioPorDia)</dt>
-    <dd class="col-sm-10">S/ @Model.precioPorDia.ToString("N2")</dd>
+                    <dt class="col-sm-5">Modelo:</dt>
+                    <dd class="col-sm-7 fw-bold">@Model.nombreModelo</dd>
 
-    <dt class="col-sm-2">@Html.DisplayNameFor(model => model.estado)</dt>
-    <dd class="col-sm-10">@Html.DisplayFor(model => model.estado)</dd>
-</dl>
+                    <dt class="col-sm-5">Año:</dt>
+                    <dd class="col-sm-7">@Model.anio</dd>
 
-<form asp-action="DeleteInactive" method="post">
-    <input type="hidden" name="id" value="@Model.idAuto" />
-    <button type="submit" class="btn btn-danger">Eliminar</button>
-    <a asp-action="Index" class="btn btn-secondary">Regresar</a>
-</form>
+                    @if (!string.IsNullOrEmpty(Model.color))
+                    {
+                        <dt class="col-sm-5">Color:</dt>
+                        <dd class="col-sm-7">@Model.color</dd>
+                    }
+                </dl>
+            </div>
+            <div class="col-md-6">
+                <dl class="row">
+                    <dt class="col-sm-5">Kilometraje:</dt>
+                    <dd class="col-sm-7">
+                        <span class="badge bg-secondary">@Model.kilometrajeActual.ToString("N0") km</span>
+                    </dd>
+
+                    <dt class="col-sm-5">Precio por Día:</dt>
+                    <dd class="col-sm-7 fw-bold text-success">S/ @Model.precioPorDia.ToString("N2")</dd>
+
+                    @if (Model.precioPorHora.HasValue)
+                    {
+                        <dt class="col-sm-5">Precio por Hora:</dt>
+                        <dd class="col-sm-7 fw-bold text-success">S/ @Model.precioPorHora.Value.ToString("N2")</dd>
+                    }
+
+                    <dt class="col-sm-5">Estado:</dt>
+                    <dd class="col-sm-7">
+                        @if (Model.estado == "Disponible")
+                        {
+                            <span class="badge bg-success"><i class="bi bi-check-circle"></i> @Model.estado</span>
+                        }
+                        else if (Model.estado == "Alquilado")
+                        {
+                            <span class="badge bg-warning text-dark"><i class="bi bi-clock"></i> @Model.estado</span>
+                        }
+                        else if (Model.estado == "En mantenimiento")
+                        {
+                            <span class="badge bg-info text-dark"><i class="bi bi-tools"></i> Mantenimiento</span>
+                        }
+                        else if (Model.estado == "En reparacion")
+                        {
+                            <span class="badge bg-danger"><i class="bi bi-wrench"></i> Reparación</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">@Model.estado</span>
+                        }
+                    </dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="alert alert-warning mt-3" role="alert">
+            <i class="bi bi-info-circle-fill"></i>
+            <strong>Advertencia:</strong> Esta acción marcará el auto como inactivo. No se podrá eliminar si tiene reservas activas.
+        </div>
+
+        <form asp-action="DeleteInactive" method="post">
+            <input type="hidden" name="id" value="@Model.idAuto" />
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-danger btn-lg" onclick="return confirm('¿Está seguro de eliminar este auto?')">
+                    <i class="bi bi-trash"></i> Confirmar Eliminación
+                </button>
+                <a asp-action="Index" class="btn btn-secondary btn-lg">
+                    <i class="bi bi-arrow-left"></i> Regresar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>

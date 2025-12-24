@@ -4,45 +4,169 @@
     ViewData["Title"] = "Listado de Autos";
 }
 
-<h1>Listado de Autos</h1>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>🚗 Flota de Vehículos</h2>
+    <a asp-action="Create" class="btn btn-primary btn-lg">
+        <i class="bi bi-plus-circle"></i> Nuevo Auto
+    </a>
+</div>
 
 @if (TempData["mensaje"] != null)
 {
-    <div class="alert alert-success">@TempData["mensaje"]</div>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill"></i> @TempData["mensaje"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
 }
 
-<p>
-    <a asp-action="Create" class="btn btn-primary">Nuevo Auto</a>
-</p>
-<table class="table table-bordered table-striped">
-    <thead>
-        <tr>
-            <th>@Html.DisplayNameFor(model => model.idAuto)</th>
-            <th>@Html.DisplayNameFor(model => model.placa)</th>
-            <th>@Html.DisplayNameFor(model => model.marca)</th>
-            <th>@Html.DisplayNameFor(model => model.modelo)</th>
-            <th>@Html.DisplayNameFor(model => model.anio)</th>
-            <th>@Html.DisplayNameFor(model => model.precioPorDia)</th>
-            <th>@Html.DisplayNameFor(model => model.estado)</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@Html.DisplayFor(modelItem => item.idAuto)</td>
-                <td>@Html.DisplayFor(modelItem => item.placa)</td>
-                <td>@Html.DisplayFor(modelItem => item.marca)</td>
-                <td>@Html.DisplayFor(modelItem => item.modelo)</td>
-                <td>@Html.DisplayFor(modelItem => item.anio)</td>
-                <td>@string.Format("{0:C}", item.precioPorDia)</td>
-                <td>@Html.DisplayFor(modelItem => item.estado)</td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.idAuto" class="btn btn-warning btn-sm me-2">Editar</a>
-                    <a asp-action="Delete" asp-route-id="@item.idAuto" class="btn btn-danger btn-sm">Eliminar</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+@if (TempData["error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle-fill"></i> @TempData["error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card shadow">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover table-striped align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Placa</th>
+                        <th>Marca</th>
+                        <th>Modelo</th>
+                        <th>Año</th>
+                        <th>Color</th>
+                        <th class="text-end">Kilometraje</th>
+                        <th class="text-end">Precio/Día</th>
+                        <th class="text-end">Precio/Hora</th>
+                        <th class="text-center">Estado</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="11" class="text-center text-muted py-4">
+                                <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+                                <p class="mt-2">No hay autos registrados</p>
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="fw-bold">@item.idAuto</td>
+                                <td>
+                                    <span class="badge bg-dark fs-6">@item.placa</span>
+                                </td>
+                                <td>@item.nombreMarca</td>
+                                <td>@item.nombreModelo</td>
+                                <td>@item.anio</td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.color))
+                                    {
+                                        <span>@item.color</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    <span class="badge bg-secondary">@item.kilometrajeActual.ToString("N0") km</span>
+                                </td>
+                                <td class="text-end fw-bold text-success">S/ @item.precioPorDia.ToString("N2")</td>
+                                <td class="text-end">
+                                    @if (item.precioPorHora.HasValue)
+                                    {
+                                        <span>S/ @item.precioPorHora.Value.ToString("N2")</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    @if (item.estado == "Disponible")
+                                    {
+                                        <span class="badge bg-success"><i class="bi bi-check-circle"></i> @item.estado</span>
+                                    }
+                                    else if (item.estado == "Alquilado")
+                                    {
+                                        <span class="badge bg-warning text-dark"><i class="bi bi-clock"></i> @item.estado</span>
+                                    }
+                                    else if (item.estado == "En mantenimiento")
+                                    {
+                                        <span class="badge bg-info text-dark"><i class="bi bi-tools"></i> Mantenimiento</span>
+                                    }
+                                    else if (item.estado == "En reparacion")
+                                    {
+                                        <span class="badge bg-danger"><i class="bi bi-wrench"></i> Reparación</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">@item.estado</span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    <div class="btn-group" role="group">
+                                        <a asp-action="Edit" 
+                                           asp-route-id="@item.idAuto" 
+                                           class="btn btn-sm btn-warning"
+                                           title="Editar">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+                                        <a asp-action="Historial" 
+                                           asp-route-id="@item.idAuto" 
+                                           class="btn btn-sm btn-info"
+                                           title="Ver Historial">
+                                            <i class="bi bi-clock-history"></i>
+                                        </a>
+                                        <a asp-action="Delete" 
+                                           asp-route-id="@item.idAuto" 
+                                           class="btn btn-sm btn-danger"
+                                           title="Eliminar">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="mt-3">
+    <div class="row g-2">
+        <div class="col-auto">
+            <span class="badge bg-success"><i class="bi bi-check-circle"></i> Disponible</span>
+        </div>
+        <div class="col-auto">
+            <span class="badge bg-warning text-dark"><i class="bi bi-clock"></i> Alquilado</span>
+        </div>
+        <div class="col-auto">
+            <span class="badge bg-info text-dark"><i class="bi bi-tools"></i> Mantenimiento</span>
+        </div>
+        <div class="col-auto">
+            <span class="badge bg-danger"><i class="bi bi-wrench"></i> Reparación</span>
+        </div>
+        <div class="col-auto">
+            <span class="badge bg-secondary">Inactivo</span>
+        </div>
+    </div>
+</div>
+
+<style>
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+</style>

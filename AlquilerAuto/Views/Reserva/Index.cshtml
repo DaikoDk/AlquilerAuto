@@ -4,52 +4,214 @@
     ViewData["Title"] = "Listado de Reservas";
 }
 
-<h2 class="mb-3">Listado de Reservas</h2>
-
-<p>
-    <a asp-action="Create" class="btn btn-primary">
-        Nueva Reserva
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>📋 Reservas</h2>
+    <a asp-action="Create" class="btn btn-primary btn-lg">
+        <i class="bi bi-plus-circle"></i> Nueva Reserva
     </a>
-</p>
+</div>
 
-<table class="table table-bordered table-striped">
-    <thead class="table-dark">
-        <tr>
-            <th>ID</th>
-            <th>Cliente</th>
-            <th>Placa</th>
-            <th>Fecha Inicio</th>
-            <th>Fecha Fin</th>
-            <th>Total</th>
-            <th>Estado</th>
-            <th style="width:120px">Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@item.idReserva</td>
-                <td>@item.cliente</td>
-                <td>@item.placa</td>
-                <td>@item.fechaInicio.ToString("dd/MM/yyyy")</td>
-                <td>@item.fechaFin.ToString("dd/MM/yyyy")</td>
-                <td>S/ @item.total</td>
-                <td>
-                    <span class="badge bg-secondary">
-                        @item.estado
-                    </span>
-                </td>
-                <td>
-                    @if (item.estado == "Reservado")
+@if (TempData["mensaje"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill"></i> @TempData["mensaje"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle-fill"></i> @TempData["error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card shadow">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover table-striped align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Cliente</th>
+                        <th>Auto/Placa</th>
+                        <th>Fecha/Hora Inicio</th>
+                        <th>Fecha/Hora Fin</th>
+                        <th class="text-end">Subtotal</th>
+                        <th class="text-end">Mora</th>
+                        <th class="text-end">Total</th>
+                        <th class="text-center">Estado</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
                     {
-                        <a asp-action="Cancelar"
-                           asp-route-id="@item.idReserva"
-                           class="btn btn-sm btn-danger">Cancelar</a>
+                        <tr>
+                            <td colspan="10" class="text-center text-muted py-4">
+                                <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+                                <p class="mt-2">No hay reservas registradas</p>
+                            </td>
+                        </tr>
                     }
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+                    else
+                    {
+                        @foreach (var item in Model)
+                        {
+                            // Calcular fechas/horas
+                            var fechaHoraInicio = item.fechaInicio.Add(item.horaInicio);
+                            var fechaHoraFin = item.fechaFin.Add(item.horaFin);
+                            var ahora = DateTime.Now;
+                            var horasRestantes = (fechaHoraFin - ahora).TotalHours;
+                            
+                            // Ya pasó la fecha de fin
+                            var yaPasoFechaFin = ahora > fechaHoraFin;
+                            
+                            // Está cerca de finalizar (2 horas o menos para el fin)
+                            var cercaDeFinalizacion = horasRestantes <= 2 && horasRestantes > 0;
+                            
+                            <tr>
+                                <td class="fw-bold">@item.idReserva</td>
+                                <td>
+                                    <i class="bi bi-person-fill text-primary"></i>
+                                    @item.cliente
+                                </td>
+                                <td>
+                                    <div>@item.autoModelo</div>
+                                    <small class="text-muted">@item.placa</small>
+                                </td>
+                                <td>
+                                    <div>@item.fechaInicio.ToString("dd/MM/yyyy")</div>
+                                    <small class="text-muted">@item.horaInicio.ToString(@"hh\:mm")</small>
+                                </td>
+                                <td>
+                                    <div>@item.fechaFin.ToString("dd/MM/yyyy")</div>
+                                    <small class="text-muted">@item.horaFin.ToString(@"hh\:mm")</small>
+                                    @if (item.estado == "Alquilado")
+                                    {
+                                        @if (yaPasoFechaFin)
+                                        {
+                                            <div><small class="badge bg-danger">⚠️ Vencida</small></div>
+                                        }
+                                        else if (cercaDeFinalizacion)
+                                        {
+                                            <div><small class="badge bg-warning text-dark">⏰ Por finalizar</small></div>
+                                        }
+                                    }
+                                    @if (item.estado == "Reservado")
+                                    {
+                                        var horasParaInicio = (fechaHoraInicio - ahora).TotalHours;
+                                        @if (horasParaInicio > 0)
+                                        {
+                                            <div><small class="badge bg-info text-dark">📅 Pendiente</small></div>
+                                        }
+                                    }
+                                </td>
+                                <td class="text-end">S/ @item.subtotal.ToString("N2")</td>
+                                <td class="text-end">
+                                    @if (item.mora > 0)
+                                    {
+                                        <span class="text-danger fw-bold">S/ @item.mora.ToString("N2")</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td class="text-end fw-bold">S/ @item.total.ToString("N2")</td>
+                                <td class="text-center">
+                                    @if (item.estado == "Reservado")
+                                    {
+                                        <span class="badge bg-info text-dark">@item.estado</span>
+                                    }
+                                    else if (item.estado == "Alquilado")
+                                    {
+                                        <span class="badge bg-warning text-dark">@item.estado</span>
+                                    }
+                                    else if (item.estado == "Finalizado")
+                                    {
+                                        <span class="badge bg-success">@item.estado</span>
+                                    }
+                                    else if (item.estado == "Cancelado")
+                                    {
+                                        <span class="badge bg-secondary">@item.estado</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-light text-dark">@item.estado</span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    @if (item.estado == "Reservado")
+                                    {
+                                        <!-- Solo puede cancelar (el inicio es automático) -->
+                                        <a asp-action="Cancelar"
+                                           asp-route-id="@item.idReserva"
+                                           class="btn btn-sm btn-danger"
+                                           title="Cancelar reserva">
+                                            <i class="bi bi-x-circle"></i> Cancelar
+                                        </a>
+                                    }
+                                    else if (item.estado == "Alquilado")
+                                    {
+                                        <!-- Siempre puede finalizar manualmente -->
+                                        <div class="d-flex gap-1 justify-content-center flex-wrap">
+                                            <a asp-action="Finalizar"
+                                               asp-route-id="@item.idReserva"
+                                               class="btn btn-sm btn-success"
+                                               title="Finalizar reserva">
+                                                <i class="bi bi-check-circle"></i> Finalizar
+                                            </a>
+                                            <a asp-controller="Reparacion"
+                                               asp-action="Index"
+                                               asp-route-idReserva="@item.idReserva"
+                                               class="btn btn-sm btn-warning"
+                                               title="Ver/Agregar reparaciones">
+                                                <i class="bi bi-tools"></i> Reparaciones
+                                            </a>
+                                            <a asp-action="Cancelar"
+                                               asp-route-id="@item.idReserva"
+                                               class="btn btn-sm btn-danger"
+                                               title="Cancelar reserva">
+                                                <i class="bi bi-x-circle"></i> Cancelar
+                                            </a>
+                                        </div>
+                                    }
+                                    else if (item.estado == "Finalizado")
+                                    {
+                                        <!-- Ver historial de reparaciones -->
+                                        <a asp-controller="Reparacion"
+                                           asp-action="Index"
+                                           asp-route-idReserva="@item.idReserva"
+                                           class="btn btn-sm btn-outline-secondary"
+                                           title="Ver reparaciones">
+                                            <i class="bi bi-eye"></i> Ver Reparaciones
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="alert alert-info mt-3" role="alert">
+    <i class="bi bi-info-circle-fill"></i>
+    <strong>Información:</strong> Las reservas se inician automáticamente cuando llega su fecha/hora programada. 
+    La finalización debe hacerse manualmente para registrar el kilometraje y estado del vehículo.
+</div>
+
+<style>
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+</style>
 

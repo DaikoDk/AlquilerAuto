@@ -4,57 +4,138 @@
     ViewData["Title"] = "Listado de Clientes";
 }
 
-<h1>Listado de Clientes</h1>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>👥 Clientes</h2>
+    <a asp-action="Create" class="btn btn-primary btn-lg">
+        <i class="bi bi-plus-circle"></i> Nuevo Cliente
+    </a>
+</div>
 
-<p>
-    <a asp-action="Create" class="btn btn-primary">Nuevo Cliente</a>
-</p>
+@if (TempData["mensaje"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill"></i> @TempData["mensaje"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
 
-<table class="table table-bordered table-striped table-hover">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.idCliente)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.nombreApe)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.dni)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.telefono)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.email)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.idCliente)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.nombreApe)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.dni)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.telefono)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.email)
-                </td>
-                <td>
-                <a asp-action="Edit" asp-route-id="@item.idCliente" class="btn btn-warning btn-sm me-2">Editar </a>
-                <a asp-action="Delete" asp-route-id="@item.idCliente" class="btn btn-danger btn-sm">Eliminar</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+@if (TempData["error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle-fill"></i> @TempData["error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card shadow">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover table-striped align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre y Apellido</th>
+                        <th>DNI</th>
+                        <th>Teléfono</th>
+                        <th>Email</th>
+                        <th class="text-center">Reservas</th>
+                        <th class="text-center">Incidentes</th>
+                        <th class="text-center">Estado</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="9" class="text-center text-muted py-4">
+                                <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+                                <p class="mt-2">No hay clientes registrados</p>
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var item in Model)
+                        {
+                            <tr class="@(item.bloqueado ? "table-danger" : "")">
+                                <td class="fw-bold">@item.idCliente</td>
+                                <td>
+                                    <i class="bi bi-person-fill text-primary"></i>
+                                    @item.nombreApe
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">@item.dni</span>
+                                </td>
+                                <td>
+                                    <i class="bi bi-telephone-fill text-success"></i>
+                                    @item.telefono
+                                </td>
+                                <td>
+                                    <i class="bi bi-envelope-fill text-info"></i>
+                                    <small>@item.email</small>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-primary">@item.numeroReservas</span>
+                                </td>
+                                <td class="text-center">
+                                    @if (item.numeroIncidentes > 0)
+                                    {
+                                        <span class="badge bg-warning text-dark">@item.numeroIncidentes</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">0</span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    @if (item.bloqueado)
+                                    {
+                                        <span class="badge bg-danger">
+                                            <i class="bi bi-lock-fill"></i> Bloqueado
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">
+                                            <i class="bi bi-check-circle"></i> Activo
+                                        </span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    <div class="btn-group" role="group">
+                                        <a asp-action="Edit" 
+                                           asp-route-id="@item.idCliente" 
+                                           class="btn btn-sm btn-warning"
+                                           title="Editar">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+                                        <a asp-action="Delete" 
+                                           asp-route-id="@item.idCliente" 
+                                           class="btn btn-sm btn-danger"
+                                           title="Eliminar">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="mt-3">
+    <p class="text-muted">
+        <i class="bi bi-info-circle"></i>
+        <strong>Nota:</strong> Los clientes con fondo rojo están bloqueados y no pueden realizar nuevas reservas.
+    </p>
+</div>
+
+<style>
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+</style>

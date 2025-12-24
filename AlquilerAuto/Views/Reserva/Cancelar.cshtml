@@ -2,64 +2,149 @@
 
 @{
     ViewData["Title"] = "Cancelar Reserva";
+    
+    // Calcular si está cerca de finalizar (2 horas o menos)
+    var fechaHoraFin = Model.FechaFin.Add(Model.HoraFin);
+    var ahora = DateTime.Now;
+    var horasRestantes = (fechaHoraFin - ahora).TotalHours;
+    var estaCercaDeFinalizacion = horasRestantes <= 2 && horasRestantes > 0 && Model.Estado == "Alquilado";
 }
 
-<h2 class="mb-3 text-danger">Cancelar Reserva</h2>
+<div class="mb-4">
+    <h2 class="text-danger">⚠️ Cancelar Reserva</h2>
+    <p class="text-muted">Revisa los detalles antes de confirmar la cancelación</p>
+</div>
 
-<p class="text-muted">
-    ¿Está seguro que desea cancelar la siguiente reserva?
-</p>
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        <strong>Error:</strong>
+        @Html.ValidationSummary()
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
 
+@if (estaCercaDeFinalizacion)
+{
+    <div class="alert alert-warning alert-dismissible fade show">
+        <strong>⚠️ Advertencia:</strong>
+        Esta reserva está próxima a finalizar (menos de 2 horas restantes). Se recomienda usar la opción "Finalizar" en lugar de "Cancelar".
+    </div>
+}
 
-
-<div class="card">
+<div class="card shadow">
+    <div class="card-header bg-danger text-white">
+        <h4 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Información de la Reserva</h4>
+    </div>
     <div class="card-body">
+        <div class="row">
+            <!-- Columna Izquierda: Datos del Cliente y Auto -->
+            <div class="col-md-6">
+                <h5 class="text-primary mb-3"><i class="bi bi-person-fill"></i> Datos del Cliente</h5>
+                <dl class="row">
+                    <dt class="col-sm-5">Cliente:</dt>
+                    <dd class="col-sm-7 fw-bold">@Model.nombreCliente</dd>
 
-        <dl class="row">
-            <dt class="col-sm-4">ID Reserva</dt>
-            <dd class="col-sm-8">@Model.IdReserva</dd>
+                    <dt class="col-sm-5">DNI:</dt>
+                    <dd class="col-sm-7">@Model.dniCliente</dd>
+                </dl>
 
-            <dt class="col-sm-4">Cliente</dt>
-            <dd class="col-sm-8">@Model.nombreCliente</dd>
+                <hr />
 
-            <dt class="col-sm-4">DNI Cliente</dt>
-            <dd class="col-sm-8">@Model.dniCliente</dd>
+                <h5 class="text-primary mb-3"><i class="bi bi-car-front-fill"></i> Datos del Vehículo</h5>
+                <dl class="row">
+                    <dt class="col-sm-5">Placa:</dt>
+                    <dd class="col-sm-7 fw-bold">@Model.placaAuto</dd>
 
-            <dt class="col-sm-4">Placa</dt>
-            <dd class="col-sm-8">@Model.placaAuto</dd>
+                    <dt class="col-sm-5">Modelo:</dt>
+                    <dd class="col-sm-7">@Model.modeloAuto</dd>
 
-            <dt class="col-sm-4">Modelo</dt>
-            <dd class="col-sm-8">@Model.modeloAuto</dd>
-
-            <dt class="col-sm-4">Fecha Inicio</dt>
-            <dd class="col-sm-8">@Model.FechaInicio.ToString("dd/MM/yyyy")</dd>
-
-            <dt class="col-sm-4">Fecha Fin</dt>
-            <dd class="col-sm-8">@Model.FechaFin.ToString("dd/MM/yyyy")</dd>
-
-            <dt class="col-sm-4">Estado</dt>
-            <dd class="col-sm-8">
-                <span class="badge bg-warning text-dark">
-                    @Model.Estado
-                </span>
-            </dd>
-        </dl>
-        @if (!ViewData.ModelState.IsValid)
-        {
-            <div class="alert alert-danger">
-                @Html.ValidationSummary()
+                    @if (!string.IsNullOrEmpty(Model.colorAuto))
+                    {
+                        <dt class="col-sm-5">Color:</dt>
+                        <dd class="col-sm-7">@Model.colorAuto</dd>
+                    }
+                </dl>
             </div>
-        }
 
-        <form asp-action="CancelarConfirmado" method="post">
+            <!-- Columna Derecha: Datos de la Reserva -->
+            <div class="col-md-6">
+                <h5 class="text-primary mb-3"><i class="bi bi-calendar-check"></i> Datos de la Reserva</h5>
+                <dl class="row">
+                    <dt class="col-sm-5">ID Reserva:</dt>
+                    <dd class="col-sm-7 fw-bold text-danger">#@Model.IdReserva</dd>
+
+                    <dt class="col-sm-5">Estado Actual:</dt>
+                    <dd class="col-sm-7">
+                        @if (Model.Estado == "Reservado")
+                        {
+                            <span class="badge bg-info text-dark">@Model.Estado</span>
+                        }
+                        else if (Model.Estado == "Alquilado")
+                        {
+                            <span class="badge bg-warning text-dark">@Model.Estado</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">@Model.Estado</span>
+                        }
+                    </dd>
+
+                    <dt class="col-sm-5">Fecha Inicio:</dt>
+                    <dd class="col-sm-7">@Model.FechaInicio.ToString("dd/MM/yyyy") - @Model.HoraInicio.ToString(@"hh\:mm")</dd>
+
+                    <dt class="col-sm-5">Fecha Fin:</dt>
+                    <dd class="col-sm-7">
+                        @Model.FechaFin.ToString("dd/MM/yyyy") - @Model.HoraFin.ToString(@"hh\:mm")
+                        @if (estaCercaDeFinalizacion)
+                        {
+                            <div><small class="badge bg-warning text-dark">⏰ Próxima a finalizar</small></div>
+                        }
+                    </dd>
+
+                    <dt class="col-sm-5">Subtotal:</dt>
+                    <dd class="col-sm-7 fw-bold">S/ @Model.Subtotal.ToString("N2")</dd>
+
+                    @if (Model.Mora > 0)
+                    {
+                        <dt class="col-sm-5">Mora:</dt>
+                        <dd class="col-sm-7 text-danger fw-bold">S/ @Model.Mora.ToString("N2")</dd>
+                    }
+
+                    @if (Model.CostoReparaciones > 0)
+                    {
+                        <dt class="col-sm-5">Reparaciones:</dt>
+                        <dd class="col-sm-7 text-danger fw-bold">S/ @Model.CostoReparaciones.ToString("N2")</dd>
+                    }
+
+                    <dt class="col-sm-5">Total:</dt>
+                    <dd class="col-sm-7 fs-5 fw-bold text-success">S/ @Model.Total.ToString("N2")</dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="alert alert-warning mt-4" role="alert">
+            <i class="bi bi-info-circle-fill"></i>
+            <strong>Advertencia:</strong> Esta acción no se puede deshacer. Al cancelar la reserva, el auto quedará disponible nuevamente.
+        </div>
+
+        <form asp-action="CancelarConfirmado" method="post" class="mt-4">
             <input type="hidden" name="id" value="@Model.IdReserva" />
 
-            <button type="submit" class="btn btn-danger">
-                Confirmar Cancelación
-            </button>
-
-            <a asp-action="Index" class="btn btn-secondary"> Volver</a>
+            <div class="d-flex gap-2">
+                @if (estaCercaDeFinalizacion)
+                {
+                    <a asp-action="Finalizar" asp-route-id="@Model.IdReserva" class="btn btn-success btn-lg">
+                        <i class="bi bi-check-circle"></i> Mejor Finalizar
+                    </a>
+                }
+                <button type="submit" class="btn btn-danger btn-lg" onclick="return confirm('¿Está seguro de cancelar esta reserva?')">
+                    <i class="bi bi-x-circle"></i> Confirmar Cancelación
+                </button>
+                <a asp-action="Index" class="btn btn-secondary btn-lg">
+                    <i class="bi bi-arrow-left"></i> Volver al Listado
+                </a>
+            </div>
         </form>
-
     </div>
 </div>

@@ -4,21 +4,89 @@
     ViewData["Title"] = "Actualizar Auto";
 }
 
-<h2>Actualizar Auto</h2>
-<form asp-action="Edit" method="post">
+<div class="mb-4">
+    <h2><i class="bi bi-pencil-square"></i> Actualizar Auto</h2>
+    <p class="text-muted">Modifique los datos del vehículo</p>
+</div>
 
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-    <input type="hidden" asp-for="idAuto" />
-    <partial name="_PartialAutoForm" model="Model" />
-    <button type="submit" class="btn btn-primary">Actualizar</button>
-    <a asp-action="Index" class="btn btn-secondary">Volver</a>
-</form>
+<div class="card shadow">
+    <div class="card-body">
+        <form asp-action="Edit" method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+            <input type="hidden" asp-for="idAuto" />
+            <input type="hidden" asp-for="numeroMotor" />
+            <input type="hidden" asp-for="numeroChasis" />
+            <input type="hidden" asp-for="ultimaRevisionKm" />
+            <input type="hidden" asp-for="proximaRevisionKm" />
+            <input type="hidden" asp-for="fechaRegistro" />
+            <input type="hidden" asp-for="fechaUltimaActualizacion" />
+            <input type="hidden" asp-for="activo" />
+            
+            <partial name="_PartialAutoForm" model="Model" />
+            
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-warning btn-lg">
+                    <i class="bi bi-check-circle"></i> Actualizar Auto
+                </button>
+                <a asp-action="Index" class="btn btn-secondary btn-lg">
+                    <i class="bi bi-x-circle"></i> Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
 
 @section Scripts {
-@{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    @{ 
+        await Html.RenderPartialAsync("_ValidationScriptsPartial"); 
     }
+    
+    <script>
+        $(document).ready(function() {
+            // Cargar modelos al cambiar marca
+            $('#selectMarca').change(function() {
+                var idMarca = $(this).val();
+                var $selectModelo = $('#selectModelo');
+                
+                $selectModelo.empty();
+                $selectModelo.append('<option value="">Cargando...</option>');
+                
+                if (idMarca) {
+                    $.ajax({
+                        url: '@Url.Action("ObtenerModelosPorMarca", "Auto")',
+                        type: 'GET',
+                        data: { idMarca: idMarca },
+                        success: function(modelos) {
+                            $selectModelo.empty();
+                            $selectModelo.append('<option value="">Seleccione un modelo</option>');
+                            $.each(modelos, function(i, modelo) {
+                                // Seleccionar el modelo actual si coincide
+                                var selected = (modelo.value == '@Model.idModelo') ? 'selected' : '';
+                                $selectModelo.append($('<option></option>')
+                                    .val(modelo.value)
+                                    .html(modelo.text)
+                                    .attr('selected', selected));
+                            });
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Error al cargar modelos:', error);
+                            $selectModelo.empty();
+                            $selectModelo.append('<option value="">Error al cargar modelos</option>');
+                        }
+                    });
+                } else {
+                    $selectModelo.empty();
+                    $selectModelo.append('<option value="">Seleccione primero una marca</option>');
+                }
+            });
+
+            // Cargar modelos al cargar la página si hay una marca seleccionada
+            var marcaActual = $('#selectMarca').val();
+            if (marcaActual) {
+                $('#selectMarca').trigger('change');
+            }
+        });
+    </script>
 }
 
 

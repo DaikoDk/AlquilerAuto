@@ -1,0 +1,162 @@
+@model IEnumerable<AlquilerAuto.Models.Configuracion>
+
+@{
+    ViewData["Title"] = "Configuración del Sistema";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>?? Configuración del Sistema</h2>
+</div>
+
+@if (TempData["mensaje"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill"></i> @TempData["mensaje"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (TempData["error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle-fill"></i> @TempData["error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="alert alert-warning" role="alert">
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    <strong>Advertencia:</strong> Modificar estos valores afecta el comportamiento del sistema. 
+    Solo el administrador debe cambiarlos.
+</div>
+
+<div class="card shadow">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover table-striped align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Clave</th>
+                        <th>Valor Actual</th>
+                        <th>Descripción</th>
+                        <th>Tipo</th>
+                        <th>Última Actualización</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-4">
+                                <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+                                <p class="mt-2">No hay configuraciones registradas</p>
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="fw-bold">
+                                    <code>@item.clave</code>
+                                </td>
+                                <td>
+                                    @if (item.tipo == "DECIMAL")
+                                    {
+                                        <span class="badge bg-success fs-6">@item.valor</span>
+                                    }
+                                    else if (item.tipo == "NUMERO")
+                                    {
+                                        <span class="badge bg-info fs-6">@item.valor</span>
+                                    }
+                                    else if (item.tipo == "BOOLEAN")
+                                    {
+                                        if (item.valor == "1" || item.valor.Equals("true", StringComparison.OrdinalIgnoreCase))
+                                        {
+                                            <span class="badge bg-success">? Activado</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">? Desactivado</span>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span>@item.valor</span>
+                                    }
+                                </td>
+                                <td>
+                                    <small class="text-muted">@item.descripcion</small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-dark">@item.tipo</span>
+                                </td>
+                                <td>
+                                    @if (item.fechaActualizacion.HasValue)
+                                    {
+                                        <small>@item.fechaActualizacion.Value.ToString("dd/MM/yyyy HH:mm")</small>
+                                    }
+                                    else
+                                    {
+                                        <small class="text-muted">-</small>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    <a asp-action="Edit" 
+                                       asp-route-clave="@item.clave" 
+                                       class="btn btn-sm btn-warning"
+                                       title="Editar">
+                                        <i class="bi bi-pencil-square"></i> Editar
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4">
+    <div class="card">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0"><i class="bi bi-info-circle"></i> Descripción de Configuraciones</h5>
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-4">MORA_POR_HORA</dt>
+                <dd class="col-sm-8">Monto en soles a cobrar por cada hora de retraso en la entrega del vehículo</dd>
+
+                <dt class="col-sm-4">MORA_POR_DIA</dt>
+                <dd class="col-sm-8">Monto en soles a cobrar por cada día completo de retraso</dd>
+
+                <dt class="col-sm-4">TIEMPO_GRACIA_MINUTOS</dt>
+                <dd class="col-sm-8">Minutos de tolerancia antes de comenzar a cobrar mora</dd>
+
+                <dt class="col-sm-4">KM_REVISION_PREVENTIVA</dt>
+                <dd class="col-sm-8">Kilometraje para programar mantenimiento preventivo</dd>
+
+                <dt class="col-sm-4">PERMITIR_RESERVAS_SIMULTANEAS</dt>
+                <dd class="col-sm-8">Si está activado (1), permite que un cliente tenga múltiples reservas activas simultáneamente</dd>
+
+                <dt class="col-sm-4">DIAS_ANTICIPACION_RESERVA</dt>
+                <dd class="col-sm-8">Días mínimos de anticipación requeridos para crear una reserva</dd>
+            </dl>
+        </div>
+    </div>
+</div>
+
+<style>
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+    code {
+        background-color: #f4f4f4;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 0.9em;
+    }
+</style>

@@ -1,0 +1,98 @@
+@model AlquilerAuto.ViewModels.ReservaDetalleVM
+
+@{
+    ViewData["Title"] = "Iniciar Alquiler";
+}
+
+<div class="mb-4">
+    <h2 class="text-primary">?? Iniciar Alquiler</h2>
+    <p class="text-muted">Revisa los detalles antes de iniciar el alquiler</p>
+</div>
+
+<div class="card shadow">
+    <div class="card-header bg-primary text-white">
+        <h4 class="mb-0"><i class="bi bi-info-circle"></i> Información de la Reserva</h4>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <!-- Columna Izquierda: Datos del Cliente y Auto -->
+            <div class="col-md-6">
+                <h5 class="text-primary mb-3"><i class="bi bi-person-fill"></i> Datos del Cliente</h5>
+                <dl class="row">
+                    <dt class="col-sm-5">Cliente:</dt>
+                    <dd class="col-sm-7 fw-bold">@Model.nombreCliente</dd>
+
+                    <dt class="col-sm-5">DNI:</dt>
+                    <dd class="col-sm-7">@Model.dniCliente</dd>
+                </dl>
+
+                <hr />
+
+                <h5 class="text-primary mb-3"><i class="bi bi-car-front-fill"></i> Datos del Vehículo</h5>
+                <dl class="row">
+                    <dt class="col-sm-5">Placa:</dt>
+                    <dd class="col-sm-7 fw-bold">@Model.placaAuto</dd>
+
+                    <dt class="col-sm-5">Modelo:</dt>
+                    <dd class="col-sm-7">@Model.modeloAuto</dd>
+
+                    @if (!string.IsNullOrEmpty(Model.colorAuto))
+                    {
+                        <dt class="col-sm-5">Color:</dt>
+                        <dd class="col-sm-7">@Model.colorAuto</dd>
+                    }
+
+                    @if (Model.kilometrajeActualAuto.HasValue)
+                    {
+                        <dt class="col-sm-5">Kilometraje Actual:</dt>
+                        <dd class="col-sm-7 fw-bold">@Model.kilometrajeActualAuto.Value.ToString("N0") km</dd>
+                    }
+                </dl>
+            </div>
+
+            <!-- Columna Derecha: Datos de la Reserva -->
+            <div class="col-md-6">
+                <h5 class="text-primary mb-3"><i class="bi bi-calendar-check"></i> Datos de la Reserva</h5>
+                <dl class="row">
+                    <dt class="col-sm-5">ID Reserva:</dt>
+                    <dd class="col-sm-7 fw-bold text-primary">#@Model.IdReserva</dd>
+
+                    <dt class="col-sm-5">Estado Actual:</dt>
+                    <dd class="col-sm-7">
+                        <span class="badge bg-info text-dark">@Model.Estado</span>
+                    </dd>
+
+                    <dt class="col-sm-5">Fecha Inicio:</dt>
+                    <dd class="col-sm-7">@Model.FechaInicio.ToString("dd/MM/yyyy") - @Model.HoraInicio.ToString(@"hh\:mm")</dd>
+
+                    <dt class="col-sm-5">Fecha Fin:</dt>
+                    <dd class="col-sm-7">@Model.FechaFin.ToString("dd/MM/yyyy") - @Model.HoraFin.ToString(@"hh\:mm")</dd>
+
+                    <dt class="col-sm-5">Subtotal:</dt>
+                    <dd class="col-sm-7 fw-bold">S/ @Model.Subtotal.ToString("N2")</dd>
+
+                    <dt class="col-sm-5">Total:</dt>
+                    <dd class="col-sm-7 fs-5 fw-bold text-success">S/ @Model.Total.ToString("N2")</dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="alert alert-info mt-4" role="alert">
+            <i class="bi bi-info-circle-fill"></i>
+            <strong>Información:</strong> Al iniciar el alquiler, se registrará el kilometraje actual del vehículo y se cambiará el estado a "Alquilado".
+        </div>
+
+        <form asp-action="IniciarAlquilerConfirmado" method="post" class="mt-4">
+            <input type="hidden" name="id" value="@Model.IdReserva" />
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary btn-lg" onclick="return confirm('¿Está seguro de iniciar este alquiler?')">
+                    <i class="bi bi-play-circle"></i> Iniciar Alquiler
+                </button>
+                <a asp-action="Index" class="btn btn-secondary btn-lg">
+                    <i class="bi bi-arrow-left"></i> Volver al Listado
+                </a>
+            </div>
+        </form>
+    </div>
+</div>

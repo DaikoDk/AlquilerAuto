@@ -4,58 +4,320 @@
     ViewData["Title"] = "Registrar Reserva";
 }
 
-<h2 class="mb-3">Registrar Reserva</h2>
+<h2 class="mb-4">📝 Nueva Reserva</h2>
 
-<form asp-action="Create" method="post">
-    <div class="row">
+<div class="card shadow">
+    <div class="card-body">
+        <form asp-action="Create" method="post" asp-antiforgery="true" id="formReserva">
+            
+            @* Mostrar solo errores del ModelState si los hay *@
+            @if (!ViewData.ModelState.IsValid)
+            {
+                var errors = ViewData.ModelState
+                    .Where(ms => ms.Value.Errors.Count > 0)
+                    .SelectMany(ms => ms.Value.Errors.Select(e => e.ErrorMessage))
+                    .Where(msg => !string.IsNullOrEmpty(msg) && msg != "True" && msg != "False")
+                    .ToList();
 
-        <!-- Cliente -->
-        <div class="col-md-6 mb-3">
-            <label class="form-label">Cliente</label>
-            <select asp-for="idCliente"
-                    asp-items="ViewBag.Clientes"
-                    class="form-select">
-                <option value="">-- Seleccione cliente --</option>
-            </select>
-            <span asp-validation-for="idCliente" class="text-danger"></span>
-        </div>
+                if (errors.Any())
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <strong><i class="bi bi-exclamation-triangle-fill"></i> Errores de validación:</strong>
+                        <ul class="mb-0 mt-2">
+                            @foreach (var error in errors)
+                            {
+                                <li>@error</li>
+                            }
+                        </ul>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+            }
 
-        <!-- Auto -->
-        <div class="col-md-6 mb-3">
-            <label class="form-label">Auto</label>
-            <select asp-for="idAuto" asp-items="ViewBag.Autos" class="form-select">
-            <option value="">-- Seleccione auto --</option>
-            </select>
-            <span asp-validation-for="idAuto" class="text-danger"></span>
-        </div>
+            <div class="row">
+                <!-- Cliente -->
+                <div class="col-md-6 mb-3">
+                    <label asp-for="idCliente" class="form-label fw-bold">
+                        <i class="bi bi-person"></i> Cliente *
+                    </label>
+                    <select asp-for="idCliente"
+                            asp-items="ViewBag.Clientes"
+                            class="form-select"
+                            required>
+                        <option value="">-- Seleccione un cliente --</option>
+                    </select>
+                    <span asp-validation-for="idCliente" class="text-danger"></span>
+                </div>
 
-        <!-- Fecha Inicio -->
-        <div class="col-md-6 mb-3">
-            <label class="form-label">Fecha Inicio</label> <input asp-for="fechaInicio" type="date" class="form-control" />
-            <span asp-validation-for="fechaInicio" class="text-danger"></span>
-        </div>
+                <!-- Auto -->
+                <div class="col-md-6 mb-3">
+                    <label asp-for="idAuto" class="form-label fw-bold">
+                        <i class="bi bi-car-front"></i> Auto Disponible *
+                    </label>
+                    <select asp-for="idAuto" 
+                            asp-items="ViewBag.Autos" 
+                            class="form-select"
+                            required>
+                        <option value="">-- Seleccione un auto --</option>
+                    </select>
+                    <span asp-validation-for="idAuto" class="text-danger"></span>
+                </div>
+            </div>
 
-        <!-- Fecha Fin -->
-        <div class="col-md-6 mb-3">
-            <label class="form-label">Fecha Fin</label>
-            <input asp-for="fechaFin" type="date" class="form-control" value="@Model.fechaInicio?.ToString("yyyy-MM-dd")" />
-            <span asp-validation-for="fechaFin" class="text-danger" value="@Model.fechaFin?.ToString("yyyy-MM-dd")"></span>
-        </div>
+            <!-- FECHA Y HORA DE INICIO -->
+            <div class="card mb-3 border-primary">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0"><i class="bi bi-calendar-check"></i> Fecha y Hora de Inicio</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Fecha Inicio -->
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="fechaInicio" class="form-label fw-bold">
+                                📅 Fecha de Inicio *
+                            </label>
+                            <input asp-for="fechaInicio" 
+                                   type="date" 
+                                   class="form-control"
+                                   id="fechaInicio"
+                                   min="@DateTime.Now.ToString("yyyy-MM-dd")"
+                                   required />
+                            <span asp-validation-for="fechaInicio" class="text-danger"></span>
+                        </div>
 
+                        <!-- Hora Inicio con botones rápidos -->
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="horaInicio" class="form-label fw-bold">
+                                🕐 Hora de Inicio *
+                            </label>
+                            <input asp-for="horaInicio" 
+                                   type="time" 
+                                   class="form-control mb-2"
+                                   id="horaInicio"
+                                   required />
+                            <div class="btn-group btn-group-sm w-100" role="group">
+                                <button type="button" class="btn btn-outline-primary hora-rapida" data-target="horaInicio" data-hora="08:00">8:00 AM</button>
+                                <button type="button" class="btn btn-outline-primary hora-rapida" data-target="horaInicio" data-hora="12:00">12:00 PM</button>
+                                <button type="button" class="btn btn-outline-primary hora-rapida" data-target="horaInicio" data-hora="14:00">2:00 PM</button>
+                                <button type="button" class="btn btn-outline-primary hora-rapida" data-target="horaInicio" data-hora="18:00">6:00 PM</button>
+                            </div>
+                            <span asp-validation-for="horaInicio" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FECHA Y HORA DE FIN -->
+            <div class="card mb-3 border-success">
+                <div class="card-header bg-success text-white">
+                    <h6 class="mb-0"><i class="bi bi-calendar-x"></i> Fecha y Hora de Devolución</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Fecha Fin -->
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="fechaFin" class="form-label fw-bold">
+                                📅 Fecha de Devolución *
+                            </label>
+                            <input asp-for="fechaFin" 
+                                   type="date" 
+                                   class="form-control"
+                                   id="fechaFin"
+                                   min="@DateTime.Now.ToString("yyyy-MM-dd")"
+                                   required />
+                            <span asp-validation-for="fechaFin" class="text-danger"></span>
+                        </div>
+
+                        <!-- Hora Fin con botones rápidos -->
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="horaFin" class="form-label fw-bold">
+                                🕐 Hora de Devolución *
+                            </label>
+                            <input asp-for="horaFin" 
+                                   type="time" 
+                                   class="form-control mb-2"
+                                   id="horaFin"
+                                   required />
+                            <div class="btn-group btn-group-sm w-100" role="group">
+                                <button type="button" class="btn btn-outline-success hora-rapida" data-target="horaFin" data-hora="08:00">8:00 AM</button>
+                                <button type="button" class="btn btn-outline-success hora-rapida" data-target="horaFin" data-hora="12:00">12:00 PM</button>
+                                <button type="button" class="btn btn-outline-success hora-rapida" data-target="horaFin" data-hora="14:00">2:00 PM</button>
+                                <button type="button" class="btn btn-outline-success hora-rapida" data-target="horaFin" data-hora="18:00">6:00 PM</button>
+                            </div>
+                            <span asp-validation-for="horaFin" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <!-- Botones de duración rápida -->
+                    <div class="mt-3">
+                        <label class="form-label fw-bold">⚡ Duración Rápida:</label>
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button type="button" class="btn btn-outline-info duracion-rapida" data-horas="2">2 horas</button>
+                            <button type="button" class="btn btn-outline-info duracion-rapida" data-horas="4">4 horas</button>
+                            <button type="button" class="btn btn-outline-info duracion-rapida" data-horas="24">1 día</button>
+                            <button type="button" class="btn btn-outline-info duracion-rapida" data-horas="48">2 días</button>
+                            <button type="button" class="btn btn-outline-info duracion-rapida" data-horas="72">3 días</button>
+                            <button type="button" class="btn btn-outline-info duracion-rapida" data-horas="168">1 semana</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información de duración -->
+            <div id="infoDuracion" class="alert alert-info" style="display: none;">
+                <strong>📊 Duración:</strong> <span id="duracionTexto"></span>
+            </div>
+
+            <div class="alert alert-secondary">
+                <strong>ℹ️ Nota:</strong> El sistema calculará automáticamente el costo total según la duración del alquiler.
+            </div>
+
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-success btn-lg" id="btnSubmit">
+                    <i class="bi bi-check-circle"></i> Registrar Reserva
+                </button>
+                <a asp-action="Index" class="btn btn-secondary btn-lg">
+                    <i class="bi bi-x-circle"></i> Cancelar
+                </a>
+            </div>
+        </form>
     </div>
+</div>
 
-    <div class="mt-3">
-        <button type="submit" class="btn btn-primary">Guardar</button>
-        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
-    </div>
-
-    <br />
-
-    @if (!ViewData.ModelState.IsValid)
-    {
-        <div class="alert alert-danger">
-            @Html.ValidationSummary()
-        </div>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+    
+    <script>
+        $(document).ready(function() {
+            // Establecer hora actual por defecto
+            var ahora = new Date();
+            var horaActual = ahora.getHours().toString().padStart(2, '0') + ':' + ahora.getMinutes().toString().padStart(2, '0');
+            if (!$('#horaInicio').val()) {
+                $('#horaInicio').val(horaActual);
+            }
 
-</form>
+            // Botones de hora rápida
+            $('.hora-rapida').click(function() {
+                var target = $(this).data('target');
+                var hora = $(this).data('hora');
+                $('#' + target).val(hora);
+                
+                // Highlight del botón seleccionado
+                $(this).siblings().removeClass('active');
+                $(this).addClass('active');
+                
+                calcularDuracion();
+            });
+
+            // Botones de duración rápida
+            $('.duracion-rapida').click(function() {
+                var horas = parseInt($(this).data('horas'));
+                
+                // Obtener fecha y hora de inicio
+                var fechaInicio = $('#fechaInicio').val();
+                var horaInicio = $('#horaInicio').val();
+                
+                if (!fechaInicio || !horaInicio) {
+                    alert('Por favor, seleccione primero la fecha y hora de inicio');
+                    return;
+                }
+                
+                // Calcular fecha y hora de fin
+                var inicio = new Date(fechaInicio + 'T' + horaInicio);
+                var fin = new Date(inicio.getTime() + (horas * 60 * 60 * 1000));
+                
+                // Establecer valores
+                var fechaFin = fin.getFullYear() + '-' + 
+                              String(fin.getMonth() + 1).padStart(2, '0') + '-' + 
+                              String(fin.getDate()).padStart(2, '0');
+                var horaFin = String(fin.getHours()).padStart(2, '0') + ':' + 
+                             String(fin.getMinutes()).padStart(2, '0');
+                
+                $('#fechaFin').val(fechaFin);
+                $('#horaFin').val(horaFin);
+                
+                // Highlight del botón seleccionado
+                $(this).siblings().removeClass('active');
+                $(this).addClass('active');
+                
+                calcularDuracion();
+            });
+
+            // Calcular duración cuando cambian las fechas/horas
+            $('#fechaInicio, #horaInicio, #fechaFin, #horaFin').on('change', function() {
+                calcularDuracion();
+            });
+
+            // Función para calcular y mostrar la duración
+            function calcularDuracion() {
+                var fechaInicio = $('#fechaInicio').val();
+                var horaInicio = $('#horaInicio').val();
+                var fechaFin = $('#fechaFin').val();
+                var horaFin = $('#horaFin').val();
+                
+                if (fechaInicio && horaInicio && fechaFin && horaFin) {
+                    var inicio = new Date(fechaInicio + 'T' + horaInicio);
+                    var fin = new Date(fechaFin + 'T' + horaFin);
+                    
+                    var diferencia = fin - inicio;
+                    
+                    if (diferencia > 0) {
+                        var horas = Math.floor(diferencia / (1000 * 60 * 60));
+                        var dias = Math.floor(horas / 24);
+                        var horasRestantes = horas % 24;
+                        
+                        var texto = '';
+                        if (dias > 0) {
+                            texto += dias + (dias === 1 ? ' día' : ' días');
+                            if (horasRestantes > 0) {
+                                texto += ' y ' + horasRestantes + (horasRestantes === 1 ? ' hora' : ' horas');
+                            }
+                        } else {
+                            texto = horas + (horas === 1 ? ' hora' : ' horas');
+                        }
+                        
+                        $('#duracionTexto').text(texto);
+                        $('#infoDuracion').fadeIn();
+                    } else {
+                        $('#infoDuracion').fadeOut();
+                    }
+                }
+            }
+
+            // Calcular duración inicial si hay valores
+            calcularDuracion();
+
+            // Log al enviar
+            $('#formReserva').on('submit', function(e) {
+                console.log('=== Enviando Reserva ===');
+                console.log('Cliente:', $('#idCliente').val());
+                console.log('Auto:', $('#idAuto').val());
+                console.log('Fecha Inicio:', $('#fechaInicio').val());
+                console.log('Hora Inicio:', $('#horaInicio').val());
+                console.log('Fecha Fin:', $('#fechaFin').val());
+                console.log('Hora Fin:', $('#horaFin').val());
+                return true;
+            });
+        });
+    </script>
+
+    <style>
+        .hora-rapida.active,
+        .duracion-rapida.active {
+            background-color: var(--bs-primary);
+            color: white;
+            border-color: var(--bs-primary);
+        }
+        
+        .card-header h6 {
+            font-weight: 600;
+        }
+        
+        .btn-group-sm .btn {
+            font-size: 0.875rem;
+            padding: 0.375rem 0.5rem;
+        }
+    </style>
+}

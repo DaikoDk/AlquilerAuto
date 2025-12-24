@@ -1,27 +1,67 @@
-﻿
-
-@model AlquilerAuto.Models.Auto
+﻿@model AlquilerAuto.Models.Auto
 
 @{
     ViewData["Title"] = "Registrar Auto";
 }
 
-<h2>Registrar Auto</h2>
+<div class="mb-4">
+    <h2><i class="bi bi-car-front-fill"></i> Registrar Nuevo Auto</h2>
+    <p class="text-muted">Complete el formulario con los datos del vehículo</p>
+</div>
 
-<form asp-action="Create" method="post">
-    <!-- Mostrar errores de validación generales -->
-    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-
-    <!-- Partial con el formulario de Auto -->
-    <partial name="_PartialAutoForm" model="Model" />
-
-    <!-- Botones -->
-    <div class="mt-3">
-        <button type="submit" class="btn btn-primary">Guardar</button>
-        <a asp-action="Index" class="btn btn-secondary">Volver</a>
+<div class="card shadow">
+    <div class="card-body">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+            <partial name="_PartialAutoForm" model="Model" />
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-success btn-lg">
+                    <i class="bi bi-check-circle"></i> Guardar Auto
+                </button>
+                <a asp-action="Index" class="btn btn-secondary btn-lg">
+                    <i class="bi bi-x-circle"></i> Cancelar
+                </a>
+            </div>
+        </form>
     </div>
-</form>
+</div>
 
 @section Scripts {
     @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    
+    <script>
+        $(document).ready(function() {
+            // Cargar modelos al cambiar marca
+            $('#selectMarca').change(function() {
+                var idMarca = $(this).val();
+                var $selectModelo = $('#selectModelo');
+                
+                $selectModelo.empty();
+                $selectModelo.append('<option value="">Cargando...</option>');
+                
+                if (idMarca) {
+                    $.ajax({
+                        url: '@Url.Action("ObtenerModelosPorMarca", "Auto")',
+                        type: 'GET',
+                        data: { idMarca: idMarca },
+                        success: function(modelos) {
+                            $selectModelo.empty();
+                            $selectModelo.append('<option value="">Seleccione un modelo</option>');
+                            $.each(modelos, function(i, modelo) {
+                                $selectModelo.append($('<option></option>').val(modelo.value).html(modelo.text));
+                            });
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Error al cargar modelos:', error);
+                            $selectModelo.empty();
+                            $selectModelo.append('<option value="">Error al cargar modelos</option>');
+                        }
+                    });
+                } else {
+                    $selectModelo.empty();
+                    $selectModelo.append('<option value="">Seleccione primero una marca</option>');
+                }
+            });
+        });
+    </script>
 }

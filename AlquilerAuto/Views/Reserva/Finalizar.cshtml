@@ -1,0 +1,287 @@
+@model AlquilerAuto.ViewModels.FinalizarReservaVM
+
+@{
+    ViewData["Title"] = "Finalizar Reserva";
+}
+
+<div class="mb-4">
+    <h2 class="text-success">? Finalizar Reserva</h2>
+    <p class="text-muted">Complete la información para finalizar el alquiler</p>
+</div>
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        <strong>Error:</strong>
+        @Html.ValidationSummary()
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<form asp-action="FinalizarConfirmado" method="post">
+    <input type="hidden" asp-for="IdReserva" />
+
+    <div class="row">
+        <!-- Columna Izquierda: Información de la Reserva -->
+        <div class="col-md-6">
+            <div class="card shadow mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="bi bi-info-circle"></i> Información de la Reserva</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-5">ID Reserva:</dt>
+                        <dd class="col-sm-7 fw-bold">#@Model.IdReserva</dd>
+
+                        <dt class="col-sm-5">Estado:</dt>
+                        <dd class="col-sm-7">
+                            <span class="badge bg-warning text-dark">Alquilado</span>
+                        </dd>
+                    </dl>
+
+                    <hr />
+
+                    <h6 class="text-primary mb-3"><i class="bi bi-person-fill"></i> Cliente</h6>
+                    <dl class="row">
+                        <dt class="col-sm-5">Nombre:</dt>
+                        <dd class="col-sm-7 fw-bold">@Model.NombreCliente</dd>
+
+                        <dt class="col-sm-5">DNI:</dt>
+                        <dd class="col-sm-7">@Model.DniCliente</dd>
+                    </dl>
+
+                    <hr />
+
+                    <h6 class="text-primary mb-3"><i class="bi bi-car-front-fill"></i> Vehículo</h6>
+                    <dl class="row">
+                        <dt class="col-sm-5">Placa:</dt>
+                        <dd class="col-sm-7 fw-bold">@Model.PlacaAuto</dd>
+
+                        <dt class="col-sm-5">Modelo:</dt>
+                        <dd class="col-sm-7">@Model.ModeloAuto</dd>
+
+                        @if (!string.IsNullOrEmpty(Model.ColorAuto))
+                        {
+                            <dt class="col-sm-5">Color:</dt>
+                            <dd class="col-sm-7">@Model.ColorAuto</dd>
+                        }
+                    </dl>
+
+                    <hr />
+
+                    <h6 class="text-primary mb-3"><i class="bi bi-calendar-check"></i> Fechas</h6>
+                    <dl class="row">
+                        <dt class="col-sm-5">Inicio:</dt>
+                        <dd class="col-sm-7">@Model.FechaInicio.ToString("dd/MM/yyyy") - @Model.HoraInicio.ToString(@"hh\:mm")</dd>
+
+                        <dt class="col-sm-5">Fin Programado:</dt>
+                        <dd class="col-sm-7">@Model.FechaFin.ToString("dd/MM/yyyy") - @Model.HoraFin.ToString(@"hh\:mm")</dd>
+                    </dl>
+
+                    <hr />
+
+                    <h6 class="text-primary mb-3"><i class="bi bi-speedometer2"></i> Kilometraje</h6>
+                    <dl class="row">
+                        @if (Model.KilometrajeInicio.HasValue)
+                        {
+                            <dt class="col-sm-5">Km Inicial:</dt>
+                            <dd class="col-sm-7 fw-bold">@Model.KilometrajeInicio.Value.ToString("N0") km</dd>
+                        }
+
+                        @if (Model.KilometrajeActualAuto.HasValue)
+                        {
+                            <dt class="col-sm-5">Km Actual Auto:</dt>
+                            <dd class="col-sm-7 text-muted">@Model.KilometrajeActualAuto.Value.ToString("N0") km</dd>
+                        }
+                    </dl>
+
+                    <hr />
+
+                    <dl class="row">
+                        <dt class="col-sm-5">Subtotal:</dt>
+                        <dd class="col-sm-7 fw-bold">S/ @Model.Subtotal.ToString("N2")</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <!-- Columna Derecha: Formulario de Finalización -->
+        <div class="col-md-6">
+            <div class="card shadow mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="bi bi-check-circle"></i> Datos de Finalización</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label asp-for="KilometrajeFin" class="form-label fw-bold"></label>
+                        <div class="input-group">
+                            <input asp-for="KilometrajeFin" class="form-control form-control-lg" type="number" min="0" />
+                            <span class="input-group-text">km</span>
+                        </div>
+                        <span asp-validation-for="KilometrajeFin" class="text-danger"></span>
+                        @if (Model.KilometrajeInicio.HasValue)
+                        {
+                            <small class="form-text text-muted">
+                                El kilometraje debe ser mayor o igual a @Model.KilometrajeInicio.Value.ToString("N0") km
+                            </small>
+                        }
+                        else if (Model.KilometrajeActualAuto.HasValue)
+                        {
+                            <small class="form-text text-muted">
+                                El kilometraje actual del auto es @Model.KilometrajeActualAuto.Value.ToString("N0") km
+                            </small>
+                        }
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="EstadoEntrega" class="form-label fw-bold"></label>
+                        <select asp-for="EstadoEntrega" class="form-select form-select-lg" id="selectEstadoEntrega">
+                            <option value="">-- Seleccione --</option>
+                            <option value="Optimo">? Óptimo (Sin daños)</option>
+                            <option value="Con daños reparados">?? Con daños reparados</option>
+                            <option value="Pendiente reparacion">?? Pendiente de reparación</option>
+                        </select>
+                        <span asp-validation-for="EstadoEntrega" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Observaciones" class="form-label fw-bold"></label>
+                        <textarea asp-for="Observaciones" class="form-control" rows="5" 
+                                  placeholder="Ingrese observaciones sobre el estado del vehículo, daños encontrados, etc."></textarea>
+                        <span asp-validation-for="Observaciones" class="text-danger"></span>
+                        <small class="form-text text-muted">Máximo 500 caracteres</small>
+                    </div>
+
+                    <!-- Sección de Reparaciones (OCULTA por defecto) -->
+                    <div id="seccionReparaciones" style="display: none;">
+                        <div class="alert alert-danger" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                            <strong>?? Daños Detectados</strong>
+                            <p class="mb-0 mt-2">
+                                Se detectaron daños en el vehículo. Por favor, registre las reparaciones necesarias 
+                                antes de finalizar la reserva.
+                            </p>
+                        </div>
+
+                        <div class="card border-danger mb-3">
+                            <div class="card-header bg-danger text-white">
+                                <h6 class="mb-0"><i class="bi bi-tools"></i> Gestión de Reparaciones</h6>
+                            </div>
+                            <div class="card-body">
+                                <dl class="row mb-0">
+                                    <dt class="col-sm-5">Costo Total Reparaciones:</dt>
+                                    <dd class="col-sm-7 fw-bold text-danger fs-5">
+                                        S/ <span id="costoReparaciones">@Model.CostoReparaciones.ToString("N2")</span>
+                                    </dd>
+                                </dl>
+                                <div class="d-grid">
+                                    <a asp-controller="Reparacion" 
+                                       asp-action="Index" 
+                                       asp-route-idReserva="@Model.IdReserva" 
+                                       class="btn btn-danger"
+                                       target="_blank">
+                                        <i class="bi bi-tools"></i> Ver/Agregar Reparaciones
+                                    </a>
+                                </div>
+                                <small class="text-muted d-block mt-2">
+                                    <i class="bi bi-info-circle"></i> Se abrirá en una nueva pestaña
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-warning" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <strong>Importante:</strong> Al finalizar la reserva:
+                        <ul class="mb-0 mt-2">
+                            <li>Se calculará automáticamente la <strong>mora</strong> si el cliente entregó tarde</li>
+                            <li id="infoReparaciones" style="display: none;">Se sumarán los <strong>costos de reparaciones</strong> al total</li>
+                            <li>El auto quedará disponible según el estado de entrega</li>
+                            <li>Se actualizará el kilometraje del vehículo</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-body">
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-success btn-lg">
+                    <i class="bi bi-check-circle"></i> Finalizar Reserva
+                </button>
+                <a asp-action="Index" class="btn btn-secondary btn-lg">
+                    <i class="bi bi-arrow-left"></i> Cancelar
+                </a>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    
+    <script>
+        $(document).ready(function() {
+            function actualizarSeccionReparaciones() {
+                var estadoSeleccionado = $('#selectEstadoEntrega').val();
+                
+                if (estadoSeleccionado === 'Con daños reparados' || estadoSeleccionado === 'Pendiente reparacion') {
+                    $('#seccionReparaciones').slideDown(300);
+                    $('#infoReparaciones').show();
+                } else {
+                    $('#seccionReparaciones').slideUp(300);
+                    $('#infoReparaciones').hide();
+                }
+            }
+
+            $('#selectEstadoEntrega').on('change', function() {
+                actualizarSeccionReparaciones();
+            });
+
+            actualizarSeccionReparaciones();
+
+            $('form').on('submit', function(e) {
+                var estadoSeleccionado = $('#selectEstadoEntrega').val();
+                
+                if ((estadoSeleccionado === 'Con daños reparados' || estadoSeleccionado === 'Pendiente reparacion')) {
+                    var costoReparaciones = parseFloat($('#costoReparaciones').text().replace(',', ''));
+                    
+                    if (costoReparaciones === 0) {
+                        e.preventDefault();
+                        alert('?? Debe registrar al menos una reparación antes de finalizar.\n\nUse el botón "Ver/Agregar Reparaciones" para registrar los daños encontrados.');
+                        return false;
+                    }
+                }
+
+                if (!confirm('¿Confirmar la finalización de la reserva?\n\nEsta acción no se puede deshacer.')) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+        });
+    </script>
+
+    <style>
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        #seccionReparaciones {
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .form-select:focus {
+            border-color: #28a745;
+            box-shadow: 0 0 0 0.25rem rgba(40, 167, 69, 0.25);
+        }
+    </style>
+}

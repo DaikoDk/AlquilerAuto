@@ -15,10 +15,9 @@ namespace AlquilerAuto.Servicio.Service
             _reservaDAO = reservaDAO;
         }
 
-
         public string Actualizar(Auto reg)
         {
-            if (ExistePlaca(reg.placa, reg.idAuto))
+            if (ExistePlaca(reg.placa ?? "", reg.idAuto))
             {
                 return "La placa ya existe.";
             }
@@ -34,7 +33,7 @@ namespace AlquilerAuto.Servicio.Service
 
         public string Agregar(Auto reg)
         {
-            if (ExistePlaca(reg.placa))
+            if (ExistePlaca(reg.placa ?? ""))
                 return "La placa ya existe";
 
             string result = _autoDAO.agregar(reg);
@@ -54,25 +53,27 @@ namespace AlquilerAuto.Servicio.Service
         public string Eliminar(int id)
         {
             var auto = _autoDAO.buscar(id);
-            if (auto == null)
+            if (auto == null || auto.idAuto == 0)
                 return "No se encontró el auto.";
 
-            // Validacion de negocio en service
-            if (auto.estado == "Disponible" || auto.estado == "En mantenimiento" || auto.estado == "Alquilado")
-                return "No se puede eliminar el auto porque está en estado no permitido.";
+            // Validar que no tenga reservas activas
+            var reservasActivas = _reservaDAO.Listado()
+                .Where(r => r.idAuto == id && (r.estado == "Reservado" || r.estado == "Alquilado"));
+
+            if (reservasActivas.Any())
+                return "No se puede inactivar el auto porque tiene reservas activas.";
 
             string result = _autoDAO.eliminar(auto);
             if (result != "OK")
             {
-                return "No se pudo eliminar el auto: " + result;
+                return "No se pudo inactivar el auto: " + result;
             }
 
-            return "Auto eliminado correctamente.";
+            return "Auto inactivado correctamente.";
         }
 
         public bool ExistePlaca(string placa, int? idAuto = null)
         {
-            // Lógica para validación de placas
             var autos = _autoDAO.Listado();
             if (idAuto.HasValue)
                 return autos.Any(a => a.placa == placa && a.idAuto != idAuto.Value);
@@ -87,7 +88,7 @@ namespace AlquilerAuto.Servicio.Service
 
         public IEnumerable<Auto> ListarDisponible()
         {
-            return _autoDAO.Listado().Where(a => a.estado == "Disponible");
+            return _autoDAO.Listado().Where(a => a.estado == "Disponible" && a.activo);
         }
     }
 }

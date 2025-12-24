@@ -10,30 +10,35 @@ namespace AlquilerAuto.DAO
         string cadena = (new ConfigurationBuilder()
             .AddJsonFile("appsettings.json")
             .Build().GetConnectionString("cn") ?? "");
+
         public string actualizar(Auto reg)
         {
             string mensaje = "";
             try
             {
                 using (SqlConnection cn = new SqlConnection(cadena))
+                using (SqlCommand cmd = new SqlCommand("usp_auto_actualizar", cn))
                 {
-                    using (SqlCommand cmd = new SqlCommand("usp_auto_actualizar", cn))
-                    {
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.AddWithValue("@idAuto", reg.idAuto);
-                        cmd.Parameters.AddWithValue("@placa", reg.placa);
-                        cmd.Parameters.AddWithValue("@marca", reg.marca);
-                        cmd.Parameters.AddWithValue("@modelo", reg.modelo);
-                        cmd.Parameters.AddWithValue("@anio", reg.anio);
-                        cmd.Parameters.AddWithValue("@precioPorDia", reg.precioPorDia);
-                        cmd.Parameters.AddWithValue("@estado", reg.estado);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@idAuto", reg.idAuto);
+                    cmd.Parameters.AddWithValue("@placa", reg.placa ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@idMarca", reg.idMarca);
+                    cmd.Parameters.AddWithValue("@idModelo", reg.idModelo);
+                    cmd.Parameters.AddWithValue("@anio", reg.anio);
+                    cmd.Parameters.AddWithValue("@color", reg.color ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@kilometrajeActual", reg.kilometrajeActual);
+                    cmd.Parameters.AddWithValue("@precioPorDia", reg.precioPorDia);
+                    cmd.Parameters.AddWithValue("@precioPorHora", reg.precioPorHora ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@estado", reg.estado ?? (object)DBNull.Value);
 
-                        cn.Open();
-                        mensaje = cmd.ExecuteScalar().ToString()??"";
-                    }
+                    cn.Open();
+                    mensaje = cmd.ExecuteScalar()?.ToString() ?? "";
                 }
             }
-            catch (Exception ex) { mensaje = ex.Message; }
+            catch (Exception ex) 
+            { 
+                mensaje = ex.Message; 
+            }
             return mensaje;
         }
 
@@ -43,56 +48,65 @@ namespace AlquilerAuto.DAO
             try
             {
                 using (SqlConnection cn = new SqlConnection(cadena))
+                using (SqlCommand cmd = new SqlCommand("usp_auto_agregar", cn))
                 {
-                    using (SqlCommand cmd = new SqlCommand("usp_auto_agregar", cn))
-                    {
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.AddWithValue("@placa", reg.placa);
-                        cmd.Parameters.AddWithValue("@marca", reg.marca);
-                        cmd.Parameters.AddWithValue("@modelo", reg.modelo);
-                        cmd.Parameters.AddWithValue("@anio", reg.anio);
-                        cmd.Parameters.AddWithValue("@precioPorDia", reg.precioPorDia);
-                        cmd.Parameters.AddWithValue("@estado", reg.estado);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@placa", reg.placa ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@idMarca", reg.idMarca);
+                    cmd.Parameters.AddWithValue("@idModelo", reg.idModelo);
+                    cmd.Parameters.AddWithValue("@anio", reg.anio);
+                    cmd.Parameters.AddWithValue("@color", reg.color ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@numeroMotor", reg.numeroMotor ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@numeroChasis", reg.numeroChasis ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@kilometrajeActual", reg.kilometrajeActual);
+                    cmd.Parameters.AddWithValue("@precioPorDia", reg.precioPorDia);
+                    cmd.Parameters.AddWithValue("@precioPorHora", reg.precioPorHora ?? (object)DBNull.Value);
 
-
-                        cn.Open();
-                        mensaje = cmd.ExecuteScalar().ToString() ?? "";
-                    }
+                    cn.Open();
+                    mensaje = cmd.ExecuteScalar()?.ToString() ?? "";
                 }
             }
-            catch (Exception ex) { mensaje = ex.Message; }
+            catch (Exception ex) 
+            { 
+                mensaje = ex.Message; 
+            }
             return mensaje;
         }
 
         public Auto buscar(int codigo)
         {
             using (SqlConnection cn = new SqlConnection(cadena))
+            using (SqlCommand cmd = new SqlCommand("usp_auto_buscar", cn))
             {
-                using (SqlCommand cmd = new SqlCommand("usp_auto_buscar", cn))
-                {
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@idAuto", codigo);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@idAuto", codigo);
 
-                    cn.Open();
-                    using (var dr = cmd.ExecuteReader())
+                cn.Open();
+                using (var dr = cmd.ExecuteReader())
+                {
+                    if (dr.Read())
                     {
-                        if (dr.Read())
+                        return new Auto
                         {
-                            return new Auto
-                            {
-                                idAuto = Convert.ToInt32(dr["idAuto"]),
-                                placa = dr["placa"].ToString(),
-                                marca = dr["marca"].ToString(),
-                                modelo = dr["modelo"].ToString(),
-                                anio = Convert.ToInt32(dr["anio"]),
-                                precioPorDia = Convert.ToDecimal(dr["precioPorDia"]),
-                                estado = dr["estado"].ToString()
-                            };
-                        }
+                            idAuto = Convert.ToInt32(dr["idAuto"]),
+                            placa = Convert.ToString(dr["placa"]),
+                            idMarca = Convert.ToInt32(dr["idMarca"]),
+                            idModelo = Convert.ToInt32(dr["idModelo"]),
+                            nombreMarca = dr["nombreMarca"] != DBNull.Value ? Convert.ToString(dr["nombreMarca"]) : null,
+                            nombreModelo = dr["nombreModelo"] != DBNull.Value ? Convert.ToString(dr["nombreModelo"]) : null,
+                            anio = Convert.ToInt32(dr["anio"]),
+                            color = dr["color"] != DBNull.Value ? Convert.ToString(dr["color"]) : null,
+                            numeroMotor = dr["numeroMotor"] != DBNull.Value ? Convert.ToString(dr["numeroMotor"]) : null,
+                            numeroChasis = dr["numeroChasis"] != DBNull.Value ? Convert.ToString(dr["numeroChasis"]) : null,
+                            kilometrajeActual = Convert.ToInt32(dr["kilometrajeActual"]),
+                            precioPorDia = Convert.ToDecimal(dr["precioPorDia"]),
+                            precioPorHora = dr["precioPorHora"] != DBNull.Value ? Convert.ToDecimal(dr["precioPorHora"]) : null,
+                            estado = dr["estado"] != DBNull.Value ? Convert.ToString(dr["estado"]) : null
+                        };
                     }
                 }
             }
-            return null;
+            return new Auto();
         }
 
         public string eliminar(Auto reg)
@@ -105,17 +119,15 @@ namespace AlquilerAuto.DAO
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@idAuto", reg.idAuto);
+
                     cn.Open();
-                    using (var dr = cmd.ExecuteReader())
-                    {
-                        if (dr.Read())
-                            mensaje = dr[0].ToString();
-                        else
-                            mensaje = "";
-                    }
+                    mensaje = cmd.ExecuteScalar()?.ToString() ?? "";
                 }
             }
-            catch (Exception ex) { mensaje = ex.Message; }
+            catch (Exception ex) 
+            { 
+                mensaje = ex.Message; 
+            }
             return mensaje;
         }
 
@@ -123,26 +135,27 @@ namespace AlquilerAuto.DAO
         {
             List<Auto> temporal = new List<Auto>();
             using (SqlConnection cn = new SqlConnection(cadena))
+            using (SqlCommand cmd = new SqlCommand("usp_auto_listar", cn))
             {
-                using (SqlCommand cmd = new SqlCommand("usp_auto", cn))
+                cmd.CommandType = CommandType.StoredProcedure;
+                cn.Open();
+                using (SqlDataReader dr = cmd.ExecuteReader())
                 {
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cn.Open();
-                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    while (dr.Read())
                     {
-                        while (dr.Read())
+                        temporal.Add(new Auto
                         {
-                            temporal.Add(new Auto()
-                            {
-                                idAuto = Convert.ToInt32(dr["idAuto"]),
-                                placa = Convert.ToString(dr["placa"]),
-                                marca = Convert.ToString(dr["marca"]),
-                                modelo = Convert.ToString(dr["modelo"]),
-                                anio = Convert.ToInt32(dr["anio"]),
-                                precioPorDia = Convert.ToDecimal(dr["precioPorDia"]),
-                                estado = Convert.ToString(dr["estado"])
-                            });
-                        }
+                            idAuto = Convert.ToInt32(dr["idAuto"]),
+                            placa = dr["placa"] != DBNull.Value ? Convert.ToString(dr["placa"]) : null,
+                            nombreMarca = dr["marca"] != DBNull.Value ? Convert.ToString(dr["marca"]) : null,
+                            nombreModelo = dr["modelo"] != DBNull.Value ? Convert.ToString(dr["modelo"]) : null,
+                            anio = Convert.ToInt32(dr["anio"]),
+                            color = dr["color"] != DBNull.Value ? Convert.ToString(dr["color"]) : null,
+                            kilometrajeActual = Convert.ToInt32(dr["kilometrajeActual"]),
+                            precioPorDia = Convert.ToDecimal(dr["precioPorDia"]),
+                            precioPorHora = dr["precioPorHora"] != DBNull.Value ? Convert.ToDecimal(dr["precioPorHora"]) : null,
+                            estado = dr["estado"] != DBNull.Value ? Convert.ToString(dr["estado"]) : null
+                        });
                     }
                 }
             }

@@ -1,51 +1,104 @@
 ﻿@model AlquilerAuto.Models.Cliente
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "Eliminar Cliente";
 }
 
-<h1>Delete</h1>
+<div class="mb-4">
+    <h2 class="text-danger"><i class="bi bi-exclamation-triangle-fill"></i> Eliminar Cliente</h2>
+    <p class="text-muted">¿Está seguro que desea eliminar este cliente?</p>
+</div>
 
-<h3>¿Estas seguro que desea eliminar este cliente?</h3>
-<div>
-    <h4>Cliente</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.idCliente)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.idCliente)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.nombreApe)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.nombreApe)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.dni)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.dni)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.telefono)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.telefono)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.email)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.email)
-        </dd>
-    </dl>
-    
-    <form asp-action="Delete" method="post">
-        <input type="hidden" asp-for="idCliente" />
-        <input type="submit" value="Eliminar" class="btn btn-danger" /> |
-        <a asp-action="Index" class="btn btn-secondary">Regresar</a>
-    </form>
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        @Html.ValidationSummary()
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card shadow">
+    <div class="card-header bg-danger text-white">
+        <h4 class="mb-0"><i class="bi bi-person-fill"></i> Información del Cliente</h4>
+    </div>
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">ID Cliente:</dt>
+            <dd class="col-sm-9 fw-bold">@Model.idCliente</dd>
+
+            <dt class="col-sm-3">Nombre y Apellido:</dt>
+            <dd class="col-sm-9 fw-bold">@Model.nombreApe</dd>
+
+            <dt class="col-sm-3">DNI:</dt>
+            <dd class="col-sm-9">
+                <span class="badge bg-secondary">@Model.dni</span>
+            </dd>
+
+            <dt class="col-sm-3">Teléfono:</dt>
+            <dd class="col-sm-9">
+                <i class="bi bi-telephone-fill text-success"></i> @Model.telefono
+            </dd>
+
+            <dt class="col-sm-3">Email:</dt>
+            <dd class="col-sm-9">
+                <i class="bi bi-envelope-fill text-info"></i> @Model.email
+            </dd>
+
+            @if (!string.IsNullOrEmpty(Model.direccion))
+            {
+                <dt class="col-sm-3">Dirección:</dt>
+                <dd class="col-sm-9">@Model.direccion</dd>
+            }
+
+            <dt class="col-sm-3">Número de Reservas:</dt>
+            <dd class="col-sm-9">
+                <span class="badge bg-primary">@Model.numeroReservas</span>
+            </dd>
+
+            <dt class="col-sm-3">Número de Incidentes:</dt>
+            <dd class="col-sm-9">
+                @if (Model.numeroIncidentes > 0)
+                {
+                    <span class="badge bg-warning text-dark">@Model.numeroIncidentes</span>
+                }
+                else
+                {
+                    <span class="badge bg-success">0</span>
+                }
+            </dd>
+
+            <dt class="col-sm-3">Estado:</dt>
+            <dd class="col-sm-9">
+                @if (Model.bloqueado)
+                {
+                    <span class="badge bg-danger">
+                        <i class="bi bi-lock-fill"></i> Bloqueado
+                    </span>
+                }
+                else
+                {
+                    <span class="badge bg-success">
+                        <i class="bi bi-check-circle"></i> Activo
+                    </span>
+                }
+            </dd>
+        </dl>
+
+        <div class="alert alert-warning mt-3" role="alert">
+            <i class="bi bi-info-circle-fill"></i>
+            <strong>Advertencia:</strong> Esta acción marcará el cliente como inactivo. No se podrá eliminar si tiene reservas activas.
+        </div>
+        
+        <form asp-action="DeleteConfirmed" method="post">
+            <input type="hidden" asp-for="idCliente" />
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-danger btn-lg" onclick="return confirm('¿Está seguro de eliminar este cliente?')">
+                    <i class="bi bi-trash"></i> Confirmar Eliminación
+                </button>
+                <a asp-action="Index" class="btn btn-secondary btn-lg">
+                    <i class="bi bi-arrow-left"></i> Regresar
+                </a>
+            </div>
+        </form>
+    </div>
 </div>

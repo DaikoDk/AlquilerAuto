@@ -1,48 +1,117 @@
 ﻿@{
-    Layout = null; // Esto quita el menú de navegación para esta pantalla
+    Layout = null;
 }
 
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <meta name="viewport" content="width=device-width" />
-    <title>Login - Alquiler Auto</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - AlquilerAuto</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-card {
+            width: 450px;
+            backdrop-filter: blur(10px);
+        }
+        .login-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+    </style>
 </head>
-<body class="bg-light d-flex justify-content-center align-items-center" style="height: 100vh;">
-
-    <div class="card shadow" style="width: 400px;">
-        <div class="card-header bg-primary text-white text-center">
-            <h3>Iniciar Sesión</h3>
-        </div>
-        <div class="card-body">
-
-            <form action="@Url.Action("Login", "Usuario")" method="post">
-
+<body>
+    <div class="login-card">
+        <div class="card shadow-lg border-0">
+            <div class="card-header login-header text-white text-center py-4">
+                <div class="mb-3">
+                    <i class="bi bi-car-front-fill" style="font-size: 4rem;"></i>
+                </div>
+                <h2 class="mb-0">AlquilerAuto</h2>
+                <p class="mb-0">Sistema de Gestión de Alquiler</p>
+            </div>
+            <div class="card-body p-4">
                 @if (ViewBag.Error != null)
                 {
-                    <div class="alert alert-danger text-center">
-                        @ViewBag.Error
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <strong>Error:</strong> @ViewBag.Error
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 }
 
-                <div class="mb-3">
-                    <label class="form-label">Correo Electrónico</label>
-                    <input type="email" name="correo" class="form-control" placeholder="ejemplo@correo.com" required />
-                </div>
+                <form action="@Url.Action("Login", "Usuario")" method="post">
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">
+                            <i class="bi bi-envelope-fill text-primary"></i> Correo Electrónico
+                        </label>
+                        <input type="email" 
+                               name="correo" 
+                               class="form-control form-control-lg" 
+                               placeholder="correo@ejemplo.com" 
+                               required 
+                               autofocus />
+                    </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Contraseña</label>
-                    <input type="password" name="clave" class="form-control" placeholder="******" required />
-                </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">
+                            <i class="bi bi-lock-fill text-primary"></i> Contraseña
+                        </label>
+                        <input type="password" 
+                               name="clave" 
+                               class="form-control form-control-lg" 
+                               placeholder="••••••••" 
+                               required />
+                    </div>
 
-                <div class="d-grid gap-2">
-                    <button type="submit" class="btn btn-primary">Ingresar</button>
-                </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
+                        </button>
+                    </div>
+                </form>
 
-            </form>
+                <hr class="my-4" />
+
+                <div class="text-center">
+                    <p class="text-muted small mb-2">
+                        <i class="bi bi-info-circle"></i> Usuarios de Prueba:
+                    </p>
+                    <div class="row g-2 text-start">
+                        <div class="col-6">
+                            <div class="card bg-light border-0">
+                                <div class="card-body p-2">
+                                    <small class="fw-bold d-block">Administrador</small>
+                                    <small class="text-muted d-block">admin@rentcar.com</small>
+                                    <small class="text-muted">123456</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="card bg-light border-0">
+                                <div class="card-body p-2">
+                                    <small class="fw-bold d-block">Empleado</small>
+                                    <small class="text-muted d-block">empleado@rentcar.com</small>
+                                    <small class="text-muted">123456</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer text-center text-muted py-3 bg-light">
+                <small>&copy; 2025 AlquilerAuto. Todos los derechos reservados.</small>
+            </div>
         </div>
     </div>
 
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

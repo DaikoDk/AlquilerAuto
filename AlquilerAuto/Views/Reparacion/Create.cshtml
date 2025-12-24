@@ -1,0 +1,219 @@
+@model AlquilerAuto.ViewModels.ReparacionCreateDTO
+
+@{
+    ViewData["Title"] = "Registrar Reparación";
+}
+
+<div class="mb-4">
+    <h2>?? Registrar Daño/Reparación</h2>
+    <p class="text-muted">Complete el formulario para documentar el daño encontrado en el vehículo</p>
+</div>
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong><i class="bi bi-exclamation-triangle-fill"></i> Errores de validación:</strong>
+        <ul class="mb-0 mt-2">
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <li>@error.ErrorMessage</li>
+            }
+        </ul>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- Información de la Reserva -->
+<div class="card shadow mb-4">
+    <div class="card-header bg-info text-white">
+        <h5 class="mb-0"><i class="bi bi-info-circle"></i> Información de la Reserva #@Model.IdReserva</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <strong>Cliente:</strong> @Model.NombreCliente
+            </div>
+            <div class="col-md-4">
+                <strong>Auto:</strong> @Model.ModeloAuto
+            </div>
+            <div class="col-md-4">
+                <strong>Placa:</strong> <span class="badge bg-dark">@Model.PlacaAuto</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Formulario de Reparación -->
+<div class="card shadow">
+    <div class="card-header bg-danger text-white">
+        <h5 class="mb-0"><i class="bi bi-tools"></i> Datos de la Reparación</h5>
+    </div>
+    <div class="card-body">
+        <form asp-action="Create" method="post" asp-antiforgery="true">
+            @Html.AntiForgeryToken()
+            
+            <!-- Campos ocultos -->
+            <input type="hidden" asp-for="IdReserva" />
+            <input type="hidden" asp-for="IdAuto" />
+            <input type="hidden" asp-for="VolverAFinalizar" />
+
+            @if (ViewBag.MensajeRetorno != null)
+            {
+                <div class="alert alert-info mb-3">
+                    <i class="bi bi-info-circle-fill"></i> @ViewBag.MensajeRetorno
+                </div>
+            }
+
+            <div class="row">
+                <!-- Tipo de Reparación (Catálogo) -->
+                <div class="col-md-6 mb-3">
+                    <label asp-for="IdCatalogoReparacion" class="form-label">
+                        <i class="bi bi-list-ul"></i> Tipo de Daño (Opcional)
+                    </label>
+                    <select asp-for="IdCatalogoReparacion" 
+                            asp-items="ViewBag.Catalogo"
+                            class="form-select"
+                            id="selectCatalogo">
+                        <option value="">-- Personalizado (describir abajo) --</option>
+                    </select>
+                    <small class="form-text text-muted">Selecciona un tipo común o deja en blanco para descripción personalizada</small>
+                </div>
+
+                <!-- Responsable del Costo -->
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Responsable" class="form-label fw-bold">
+                        <i class="bi bi-person-badge"></i> ¿Quién asume el costo? *
+                    </label>
+                    <select asp-for="Responsable"
+                            asp-items="ViewBag.Responsables"
+                            class="form-select"
+                            required>
+                    </select>
+                    <span asp-validation-for="Responsable" class="text-danger"></span>
+                </div>
+
+                <!-- NUEVO: Estado de la Reparación -->
+                <div class="col-md-12 mb-3">
+                    <label asp-for="EstadoReparacion" class="form-label fw-bold">
+                        <i class="bi bi-wrench"></i> Estado Actual de la Reparación *
+                    </label>
+                    <div class="btn-group w-100" role="group">
+                        <input type="radio" class="btn-check" name="EstadoReparacion" id="estadoPendiente" value="Pendiente" checked>
+                        <label class="btn btn-outline-warning" for="estadoPendiente">
+                            <i class="bi bi-clock"></i> Pendiente (Aún no reparado)
+                        </label>
+
+                        <input type="radio" class="btn-check" name="EstadoReparacion" id="estadoEnProceso" value="En proceso">
+                        <label class="btn btn-outline-primary" for="estadoEnProceso">
+                            <i class="bi bi-gear"></i> En Proceso (Reparando ahora)
+                        </label>
+
+                        <input type="radio" class="btn-check" name="EstadoReparacion" id="estadoCompletada" value="Completada">
+                        <label class="btn btn-outline-success" for="estadoCompletada">
+                            <i class="bi bi-check-circle"></i> Completada (Ya reparado)
+                        </label>
+                    </div>
+                    <span asp-validation-for="EstadoReparacion" class="text-danger"></span>
+                </div>
+
+                <!-- Descripción del Daño -->
+                <div class="col-md-12 mb-3">
+                    <label asp-for="Descripcion" class="form-label fw-bold">
+                        <i class="bi bi-file-text"></i> Descripción Detallada del Daño *
+                    </label>
+                    <textarea asp-for="Descripcion" 
+                              class="form-control" 
+                              rows="4"
+                              placeholder="Ej: Rayón de 15cm en puerta trasera derecha, color visible sobre pintura blanca..."
+                              required></textarea>
+                    <span asp-validation-for="Descripcion" class="text-danger"></span>
+                    <small class="form-text text-muted">Máximo 500 caracteres</small>
+                </div>
+
+                <!-- Costo de Reparación -->
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Costo" class="form-label fw-bold">
+                        <i class="bi bi-cash-coin"></i> Costo de Reparación (S/) *
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text">S/</span>
+                        <input asp-for="Costo" 
+                               type="number" 
+                               step="0.01" 
+                               min="0"
+                               class="form-control form-control-lg"
+                               id="inputCosto"
+                               placeholder="0.00"
+                               required />
+                    </div>
+                    <span asp-validation-for="Costo" class="text-danger"></span>
+                </div>
+            </div>
+
+            <!-- Alertas Informativas -->
+            <div class="alert alert-warning" role="alert">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <strong>Importante:</strong>
+                <ul class="mb-0 mt-2">
+                    <li>Si selecciona <strong>"Cliente"</strong>, el costo se sumará al total de la reserva al finalizarla.</li>
+                    <li>Si selecciona <strong>"Empresa"</strong>, la empresa asume el costo (no se cobra al cliente).</li>
+                    <li>Documente con fotos si es posible (funcionalidad futura).</li>
+                </ul>
+            </div>
+
+            <!-- Botones -->
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-danger btn-lg">
+                    <i class="bi bi-check-circle"></i> Registrar Reparación
+                </button>
+                <a asp-action="Index" asp-route-idReserva="@Model.IdReserva" class="btn btn-secondary btn-lg">
+                    <i class="bi bi-x-circle"></i> Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    
+    <script>
+        $(document).ready(function() {
+            // Auto-llenar costo si selecciona del catálogo
+            $('#selectCatalogo').change(function() {
+                var selectedText = $(this).find('option:selected').text();
+                
+                if (selectedText && selectedText.includes('S/')) {
+                    // Extraer el costo del texto "Descripción - S/ 150.00"
+                    var match = selectedText.match(/S\/\s*([\d,]+\.?\d*)/);
+                    if (match) {
+                        var costo = match[1].replace(',', '');
+                        $('#inputCosto').val(parseFloat(costo).toFixed(2));
+                    }
+                }
+            });
+
+            // Validación en tiempo real del costo
+            $('#inputCosto').on('input', function() {
+                var valor = parseFloat($(this).val());
+                if (valor < 0) {
+                    $(this).addClass('is-invalid');
+                    $(this).after('<div class="invalid-feedback">El costo no puede ser negativo</div>');
+                } else {
+                    $(this).removeClass('is-invalid');
+                    $(this).next('.invalid-feedback').remove();
+                }
+            });
+        });
+    </script>
+
+    <style>
+        .form-label {
+            font-weight: 500;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+        }
+    </style>
+}

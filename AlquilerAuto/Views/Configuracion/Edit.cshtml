@@ -1,0 +1,177 @@
+@model AlquilerAuto.Models.Configuracion
+
+@{
+    ViewData["Title"] = "Editar Configuración";
+}
+
+<div class="mb-4">
+    <h2>?? Editar Configuración</h2>
+    <p class="text-muted">Modifique el valor de la configuración del sistema</p>
+</div>
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong><i class="bi bi-exclamation-triangle-fill"></i> Errores de validación:</strong>
+        <ul class="mb-0 mt-2">
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <li>@error.ErrorMessage</li>
+            }
+        </ul>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="card shadow">
+    <div class="card-header bg-warning text-dark">
+        <h5 class="mb-0"><i class="bi bi-gear-fill"></i> Datos de Configuración</h5>
+    </div>
+    <div class="card-body">
+        <form asp-action="Edit" method="post" asp-antiforgery="true">
+            @Html.AntiForgeryToken()
+            
+            <!-- Campos ocultos -->
+            <input type="hidden" asp-for="idConfiguracion" />
+            <input type="hidden" asp-for="tipo" />
+            <input type="hidden" asp-for="descripcion" />
+            <input type="hidden" asp-for="fechaActualizacion" />
+
+            <div class="row">
+                <!-- Clave (Solo lectura) -->
+                <div class="col-md-6 mb-3">
+                    <label asp-for="clave" class="form-label fw-bold">
+                        <i class="bi bi-key-fill"></i> Clave
+                    </label>
+                    <input asp-for="clave" class="form-control" readonly />
+                    <small class="form-text text-muted">La clave no se puede modificar</small>
+                </div>
+
+                <!-- Tipo (Solo lectura) -->
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">
+                        <i class="bi bi-tag-fill"></i> Tipo de Dato
+                    </label>
+                    <input type="text" value="@Model.tipo" class="form-control" readonly />
+                </div>
+
+                <!-- Descripción (Solo lectura) -->
+                <div class="col-md-12 mb-3">
+                    <label class="form-label fw-bold">
+                        <i class="bi bi-info-circle"></i> Descripción
+                    </label>
+                    <textarea class="form-control" rows="2" readonly>@Model.descripcion</textarea>
+                </div>
+
+                <!-- Valor (Editable) -->
+                <div class="col-md-12 mb-3">
+                    <label asp-for="valor" class="form-label fw-bold">
+                        <i class="bi bi-pencil-square"></i> Valor Actual *
+                    </label>
+                    
+                    @if (Model.tipo == "BOOLEAN")
+                    {
+                        <select asp-for="valor" class="form-select form-select-lg" required>
+                            @if (Model.valor == "0")
+                            {
+                                <option value="0" selected>? Desactivado (0)</option>
+                                <option value="1">? Activado (1)</option>
+                            }
+                            else
+                            {
+                                <option value="0">? Desactivado (0)</option>
+                                <option value="1" selected>? Activado (1)</option>
+                            }
+                        </select>
+                    }
+                    else if (Model.tipo == "NUMERO")
+                    {
+                        <input asp-for="valor" 
+                               type="number" 
+                               class="form-control form-control-lg" 
+                               min="0"
+                               required />
+                    }
+                    else if (Model.tipo == "DECIMAL")
+                    {
+                        <input asp-for="valor" 
+                               type="number" 
+                               step="0.01" 
+                               class="form-control form-control-lg" 
+                               min="0"
+                               required />
+                    }
+                    else
+                    {
+                        <input asp-for="valor" 
+                               type="text" 
+                               class="form-control form-control-lg" 
+                               required />
+                    }
+                    
+                    <span asp-validation-for="valor" class="text-danger"></span>
+                    
+                    @if (Model.tipo == "DECIMAL")
+                    {
+                        <small class="form-text text-muted">Ingrese un número decimal positivo (ej: 10.50)</small>
+                    }
+                    else if (Model.tipo == "NUMERO")
+                    {
+                        <small class="form-text text-muted">Ingrese un número entero positivo (ej: 30)</small>
+                    }
+                    else if (Model.tipo == "BOOLEAN")
+                    {
+                        <small class="form-text text-muted">Seleccione si desea activar (1) o desactivar (0) esta opción</small>
+                    }
+                </div>
+            </div>
+
+            <!-- Alerta de Advertencia -->
+            <div class="alert alert-danger" role="alert">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <strong>?? Advertencia Importante:</strong>
+                <ul class="mb-0 mt-2">
+                    <li>Este cambio afectará inmediatamente el funcionamiento del sistema</li>
+                    <li>Los valores se aplicarán a todas las nuevas operaciones</li>
+                    <li>Verifique el valor antes de guardar</li>
+                </ul>
+            </div>
+
+            <!-- Botones -->
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-warning btn-lg">
+                    <i class="bi bi-check-circle"></i> Guardar Cambios
+                </button>
+                <a asp-action="Index" class="btn btn-secondary btn-lg">
+                    <i class="bi bi-x-circle"></i> Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    
+    <script>
+        $(document).ready(function() {
+            // Confirmación antes de guardar
+            $('form').on('submit', function(e) {
+                var valor = $('input[name="valor"], select[name="valor"]').val();
+                var clave = $('input[name="clave"]').val();
+                
+                if (!confirm('¿Está seguro de cambiar ' + clave + ' a "' + valor + '"?\n\nEsto afectará el funcionamiento del sistema.')) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+        });
+    </script>
+
+    <style>
+        .form-control:focus, .form-select:focus {
+            border-color: #ffc107;
+            box-shadow: 0 0 0 0.25rem rgba(255, 193, 7, 0.25);
+        }
+    </style>
+}

@@ -1,66 +1,213 @@
-﻿@{
-    ViewData["Title"] = "Inicio";
+﻿@model AlquilerAuto.ViewModels.DashboardVM
+
+@{
+    ViewData["Title"] = "Dashboard";
 }
 
-<nav class="d-flex justify-content-between align-items-center mb-4 p-2 border-bottom">
-    <div class="h5 m-0 text-primary">
-        🚗 AlquilerAuto
-    </div>
-
-    <div class="d-flex align-items-center gap-3">
-        <span class="text-secondary">
-            Hola, <b>@User.Identity!.Name</b>
-        </span>
-
-        <a asp-controller="Usuario" asp-action="Salir" class="btn btn-outline-danger btn-sm">
-            Cerrar Sesión
-        </a>
-    </div>
-</nav>
-
-<div class="bg-primary text-white text-center py-5 rounded mb-5">
-    <h1 class="display-3 fw-bold">Sistema de Alquiler de Autos</h1>
-    <p class="lead">Gestiona clientes, vehículos y reservas de manera eficiente</p>
+<div class="mb-4">
+    <h2>📊 Dashboard del Sistema</h2>
+    <p class="text-muted">Resumen general y estadísticas en tiempo real</p>
 </div>
 
+<!-- Tarjetas de Estadísticas -->
+<div class="row g-4 mb-4">
+    <!-- Autos -->
+    <div class="col-md-3">
+        <div class="card shadow-sm border-primary">
+            <div class="card-body text-center">
+                <i class="bi bi-car-front-fill text-primary" style="font-size: 3rem;"></i>
+                <h3 class="mt-3 mb-1">@Model.TotalAutos</h3>
+                <p class="text-muted mb-0">Total Autos</p>
+                <hr />
+                <div class="d-flex justify-content-around">
+                    <div>
+                        <small class="text-success">✓ @Model.AutosDisponibles</small>
+                    </div>
+                    <div>
+                        <small class="text-warning">🔒 @Model.AutosAlquilados</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Clientes -->
+    <div class="col-md-3">
+        <div class="card shadow-sm border-info">
+            <div class="card-body text-center">
+                <i class="bi bi-people-fill text-info" style="font-size: 3rem;"></i>
+                <h3 class="mt-3 mb-1">@Model.TotalClientes</h3>
+                <p class="text-muted mb-0">Total Clientes</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reservas Activas -->
+    <div class="col-md-3">
+        <div class="card shadow-sm border-warning">
+            <div class="card-body text-center">
+                <i class="bi bi-calendar-check-fill text-warning" style="font-size: 3rem;"></i>
+                <h3 class="mt-3 mb-1">@Model.ReservasActivas</h3>
+                <p class="text-muted mb-0">Reservas Activas</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ingresos del Mes -->
+    <div class="col-md-3">
+        <div class="card shadow-sm border-success">
+            <div class="card-body text-center">
+                <i class="bi bi-cash-coin text-success" style="font-size: 3rem;"></i>
+                <h3 class="mt-3 mb-1">S/ @Model.IngresosMes.ToString("N2")</h3>
+                <p class="text-muted mb-0">Ingresos del Mes</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sección de Tablas -->
 <div class="row g-4">
-    <div class="col-md-4">
-        <div class="card shadow h-100 text-center">
+    <!-- Reservas Próximas -->
+    <div class="col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0"><i class="bi bi-calendar-event"></i> Reservas Activas</h5>
+            </div>
             <div class="card-body">
-                <div class="display-1 mb-3">👥</div>
-                <h3 class="card-title">Clientes</h3>
-                <p class="card-text text-muted">Administra la información de tus clientes</p>
-                <a asp-controller="Cliente" asp-action="Index" class="btn btn-primary btn-lg">
-                    Ir a Clientes
-                </a>
+                @if (Model.ReservasProximas.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Cliente</th>
+                                    <th>Auto</th>
+                                    <th>Días Restantes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var reserva in Model.ReservasProximas)
+                                {
+                                    <tr>
+                                        <td>@reserva.cliente</td>
+                                        <td>
+                                            <small>@reserva.auto</small><br />
+                                            <small class="text-muted">@reserva.placa</small>
+                                        </td>
+                                        <td>
+                                            @if (reserva.diasRestantes < 0)
+                                            {
+                                                <span class="badge bg-danger">Vencida</span>
+                                            }
+                                            else if (reserva.diasRestantes == 0)
+                                            {
+                                                <span class="badge bg-warning text-dark">Hoy</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-info">@reserva.diasRestantes días</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="text-end">
+                        <a asp-controller="Reserva" asp-action="Index" class="btn btn-sm btn-outline-warning">Ver todas</a>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted text-center mb-0">No hay reservas activas</p>
+                }
             </div>
         </div>
     </div>
 
-    <div class="col-md-4">
-        <div class="card shadow h-100 text-center">
+    <!-- Autos Requieren Mantenimiento -->
+    <div class="col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0"><i class="bi bi-tools"></i> Mantenimientos Requeridos</h5>
+            </div>
             <div class="card-body">
-                <div class="display-1 mb-3">🚙</div>
-                <h3 class="card-title">Autos</h3>
-                <p class="card-text text-muted">Gestiona el inventario de vehículos</p>
-                <a asp-controller="Auto" asp-action="Index" class="btn btn-primary btn-lg">
-                    Ir a Autos
-                </a>
+                @if (Model.AutosRequierenMantenimiento.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Placa</th>
+                                    <th>Modelo</th>
+                                    <th>Km Actual</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var auto in Model.AutosRequierenMantenimiento)
+                                {
+                                    <tr>
+                                        <td>@auto.placa</td>
+                                        <td>
+                                            <small>@auto.marca @auto.modelo</small>
+                                        </td>
+                                        <td>@auto.kilometrajeActual.ToString("N0") km</td>
+                                        <td>
+                                            @if (auto.estadoMantenimiento == "Mantenimiento vencido")
+                                            {
+                                                <span class="badge bg-danger">Vencido</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-warning text-dark">Próximo</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="text-end">
+                        <a asp-controller="Mantenimiento" asp-action="Index" class="btn btn-sm btn-outline-danger">Ver todos</a>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted text-center mb-0">✓ Todos los autos están al día</p>
+                }
             </div>
         </div>
     </div>
+</div>
 
+<!-- Accesos Rápidos -->
+<div class="row g-4 mt-4">
     <div class="col-md-4">
-        <div class="card shadow h-100 text-center">
+        <div class="card shadow-sm text-center">
             <div class="card-body">
-                <div class="display-1 mb-3">📋</div>
-                <h3 class="card-title">Reservas</h3>
-                <p class="card-text text-muted">Controla las reservas y alquileres</p>
-                <a asp-controller="Reserva" asp-action="Index" class="btn btn-primary btn-lg">
-                    Ir a Reservas
-                </a>
+                <i class="bi bi-plus-circle text-primary" style="font-size: 2rem;"></i>
+                <h5 class="mt-3">Nueva Reserva</h5>
+                <a asp-controller="Reserva" asp-action="Create" class="btn btn-primary">Crear</a>
             </div>
         </div>
     </div>
-
+    <div class="col-md-4">
+        <div class="card shadow-sm text-center">
+            <div class="card-body">
+                <i class="bi bi-car-front text-info" style="font-size: 2rem;"></i>
+                <h5 class="mt-3">Registrar Auto</h5>
+                <a asp-controller="Auto" asp-action="Create" class="btn btn-info">Agregar</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm text-center">
+            <div class="card-body">
+                <i class="bi bi-person-plus text-success" style="font-size: 2rem;"></i>
+                <h5 class="mt-3">Nuevo Cliente</h5>
+                <a asp-controller="Cliente" asp-action="Create" class="btn btn-success">Registrar</a>
+            </div>
+        </div>
+    </div>
 </div>

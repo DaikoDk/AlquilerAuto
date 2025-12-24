@@ -25,6 +25,7 @@ namespace AlquilerAuto.DAO
                         cmd.Parameters.AddWithValue("@dni", reg.dni);
                         cmd.Parameters.AddWithValue("@telefono", reg.telefono);
                         cmd.Parameters.AddWithValue("@email", reg.email);
+                        cmd.Parameters.AddWithValue("@direccion", reg.direccion ?? (object)DBNull.Value);
 
                         cn.Open();
 
@@ -50,6 +51,7 @@ namespace AlquilerAuto.DAO
                         cmd.Parameters.AddWithValue("@dni", reg.dni);
                         cmd.Parameters.AddWithValue("@telefono", reg.telefono);
                         cmd.Parameters.AddWithValue("@email", reg.email);
+                        cmd.Parameters.AddWithValue("@direccion", reg.direccion ?? (object)DBNull.Value);
 
                         cn.Open();
                         mensaje = cmd.ExecuteScalar().ToString() ?? "";
@@ -78,12 +80,16 @@ namespace AlquilerAuto.DAO
                             nombreApe = Convert.ToString(dr["nombreApe"]),
                             dni = Convert.ToString(dr["dni"]),
                             telefono = Convert.ToString(dr["telefono"]),
-                            email = Convert.ToString(dr["email"])
+                            email = Convert.ToString(dr["email"]),
+                            direccion = dr["direccion"] != DBNull.Value ? Convert.ToString(dr["direccion"]) : null,
+                            numeroReservas = dr["numeroReservas"] != DBNull.Value ? Convert.ToInt32(dr["numeroReservas"]) : 0,
+                            numeroIncidentes = dr["numeroIncidentes"] != DBNull.Value ? Convert.ToInt32(dr["numeroIncidentes"]) : 0,
+                            bloqueado = dr["bloqueado"] != DBNull.Value ? Convert.ToBoolean(dr["bloqueado"]) : false
                         };
                     }
                 }
             }
-            return new Cliente(); // o return null; según tu preferencia
+            return new Cliente();
         }
 
         public string eliminar(Cliente reg)
@@ -136,7 +142,7 @@ namespace AlquilerAuto.DAO
             List<Cliente> temporal = new List<Cliente>();
             using (SqlConnection cn = new SqlConnection(cadena))
             {
-                using (SqlCommand cmd = new SqlCommand("usp_cliente", cn))
+                using (SqlCommand cmd = new SqlCommand("usp_cliente_listar", cn))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
                     cn.Open();
@@ -150,7 +156,11 @@ namespace AlquilerAuto.DAO
                                 nombreApe = Convert.ToString(dr["nombreApe"]),
                                 dni = Convert.ToString(dr["dni"]),
                                 telefono = Convert.ToString(dr["telefono"]),
-                                email = Convert.ToString(dr["email"])
+                                email = Convert.ToString(dr["email"]),
+                                direccion = dr["direccion"] != DBNull.Value ? Convert.ToString(dr["direccion"]) : null,
+                                numeroReservas = dr["numeroReservas"] != DBNull.Value ? Convert.ToInt32(dr["numeroReservas"]) : 0,
+                                numeroIncidentes = dr["numeroIncidentes"] != DBNull.Value ? Convert.ToInt32(dr["numeroIncidentes"]) : 0,
+                                bloqueado = dr["bloqueado"] != DBNull.Value ? Convert.ToBoolean(dr["bloqueado"]) : false
                             });
                         }
                     }
